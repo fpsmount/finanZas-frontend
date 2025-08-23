@@ -1,70 +1,62 @@
-# Getting Started with Create React App
+# FinanZas: Gerenciador Financeiro Pessoal
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Uma aplicação web desenvolvida em React para ajudar a gerenciar suas finanças pessoais, rastrear entradas, controlar saídas e visualizar seu histórico financeiro através de relatórios detalhados.
 
-## Available Scripts
+## 🌟 Recursos Principais
 
-In the project directory, you can run:
+- **Dashboard Intuitivo:** Uma visão geral do seu saldo, entradas e saídas, com um gráfico de pizza para uma análise rápida.
+- **Gerenciamento de Entradas:** Adicione, edite e remova seus rendimentos, como salários e trabalhos freelancers.
+- **Controle de Saídas:** Registre despesas fixas e variáveis e categorize-as para um controle mais eficiente.
+- **Relatórios Detalhados:** Analise sua saúde financeira com gráficos de barras e relatórios de despesas que comparam gastos fixos e variáveis.
+- **Configurações Personalizadas:** Ajuste informações do seu perfil e alterne entre o modo escuro e claro para uma melhor experiência visual.
 
-### `npm start`
+## 🛠️ Tecnologias Utilizadas
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+O frontend desta aplicação foi construído com as seguintes tecnologias:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **React**: Biblioteca JavaScript para construir interfaces de usuário.
+- **Chakra UI**: Um framework de componentes React que simplifica o desenvolvimento e o design.
+- **React Router Dom**: Para gerenciar a navegação entre as páginas.
+- **Recharts**: Uma biblioteca para criar gráficos e visualizações de dados.
+- **JavaScript (ES6+)**
 
-### `npm test`
+## 🚀 Como Executar o Projeto Localmente
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Siga estas instruções para configurar e rodar o projeto em sua máquina:
 
-### `npm run build`
+1.  **Clone o repositório:**
+    ```bash
+    git clone [https://github.com/fpsmount/finanZas.git](https://github.com/fpsmount/finanZas.git)
+    cd finanZas
+    ```
+    
+2.  **Mova para o diretório do frontend:**
+    ```bash
+    cd finanzas-frontend
+    ```
+    
+3.  **Instale as dependências:**
+    ```bash
+    npm install
+    ```
+    
+4.  **Inicie a aplicação em modo de desenvolvimento:**
+    ```bash
+    npm start
+    ```
+    A aplicação estará disponível em `http://localhost:3000`.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 📦 Scripts Disponíveis
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+No diretório do projeto, você pode executar:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- `npm start`: Inicia o servidor de desenvolvimento.
+- `npm run build`: Cria uma versão otimizada da aplicação para produção.
+- `npm test`: Executa os testes unitários.
+- `npm run eject`: Remove a dependência única do React Scripts, oferecendo total controle sobre as configurações.
 
-### `npm run eject`
+## 🤝 Estrutura do Projeto
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+O projeto está organizado em duas pastas principais: `finanzas-frontend` e `finanzas-backend`. Esta é a documentação do frontend.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+O diretório `src/pages` contém os principais componentes de cada página da aplicação. Os componentes globais e a navegação estão configurados no arquivo `src/App.js`.
