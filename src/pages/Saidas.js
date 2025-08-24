@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
@@ -20,7 +20,9 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  useToast,
 } from "@chakra-ui/react";
+import axios from "axios";
 
 function Saidas() {
   const [saidas, setSaidas] = useState([]);
@@ -32,9 +34,31 @@ function Saidas() {
   });
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [saidaParaExcluir, setSaidaParaExcluir] = useState(null);
+  const [saidaParaEditar, setSaidaParaEditar] = useState(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = React.useRef();
+  const cancelRef = useRef();
+  const toast = useToast();
+
+  const fetchSaidas = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/saidas");
+      setSaidas(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar saídas:", error);
+      toast({
+        title: "Erro ao carregar saídas.",
+        description: "Não foi possível conectar ao servidor.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchSaidas();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,10 +68,29 @@ function Saidas() {
     });
   };
 
-  const adicionarSaida = () => {
-    setSaidas([...saidas, { ...novaSaida, id: Date.now() }]);
-    setNovaSaida({ descricao: "", valor: "", data: "", tipo: "variável" });
-    setMostrarFormulario(false);
+  const adicionarSaida = async () => {
+    try {
+      if (saidaParaEditar) {
+        await axios.put(`http://localhost:8080/api/saidas/${saidaParaEditar.id}`, novaSaida);
+        toast({ title: "Saída editada com sucesso!", status: "success", duration: 3000 });
+      } else {
+        await axios.post("http://localhost:8080/api/saidas", novaSaida);
+        toast({ title: "Saída adicionada com sucesso!", status: "success", duration: 3000 });
+      }
+      setNovaSaida({ descricao: "", valor: "", data: "", tipo: "variável" });
+      setMostrarFormulario(false);
+      setSaidaParaEditar(null);
+      fetchSaidas();
+    } catch (error) {
+      console.error("Erro ao salvar saída:", error);
+      toast({ title: "Erro ao salvar saída.", status: "error", duration: 3000 });
+    }
+  };
+
+  const iniciarEdicao = (saida) => {
+    setNovaSaida(saida);
+    setSaidaParaEditar(saida);
+    setMostrarFormulario(true);
   };
 
   const confirmarExclusao = (id) => {
@@ -55,10 +98,24 @@ function Saidas() {
     onOpen();
   };
 
-  const excluirSaida = () => {
-    setSaidas(saidas.filter((saida) => saida.id !== saidaParaExcluir));
-    setSaidaParaExcluir(null);
-    onClose();
+  const excluirSaida = async () => {
+    try {
+      await axios.delete(`http://localhost:8080/api/saidas/${saidaParaExcluir}`);
+      toast({ title: "Saída excluída com sucesso.", status: "info", duration: 3000 });
+      setSaidaParaExcluir(null);
+      onClose();
+      fetchSaidas();
+    } catch (error) {
+      console.error("Erro ao excluir saída:", error);
+      toast({ title: "Erro ao excluir saída.", status: "error", duration: 3000 });
+    }
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
   };
 
   return (
@@ -68,7 +125,7 @@ function Saidas() {
           Saídas
         </Text>
         <Button colorScheme="red" onClick={() => setMostrarFormulario(!mostrarFormulario)}>
-          Nova Saída
+          {mostrarFormulario ? "Cancelar" : "Nova Saída"}
         </Button>
       </HStack>
 
@@ -105,13 +162,12 @@ function Saidas() {
             value={novaSaida.tipo}
             onChange={handleChange}
             color="whiteAlpha.900"
-            _placeholder={{ color: "whiteAlpha.600" }}
           >
             <option value="fixa">Fixa</option>
             <option value="variável">Variável</option>
           </Select>
           <Button colorScheme="blue" onClick={adicionarSaida}>
-            Adicionar
+            {saidaParaEditar ? "Salvar Edição" : "Adicionar"}
           </Button>
         </VStack>
       )}
@@ -130,12 +186,12 @@ function Saidas() {
           {saidas.map((saida) => (
             <Tr key={saida.id}>
               <Td color="whiteAlpha.900">{saida.descricao}</Td>
-              <Td color="whiteAlpha.900">R$ {saida.valor}</Td>
+              <Td color="whiteAlpha.900">{formatCurrency(saida.valor)}</Td>
               <Td color="whiteAlpha.900">{saida.data}</Td>
               <Td color="whiteAlpha.900">{saida.tipo}</Td>
               <Td>
                 <HStack spacing={2}>
-                  <Button size="sm" colorScheme="yellow">
+                  <Button size="sm" colorScheme="yellow" onClick={() => iniciarEdicao(saida)}>
                     Editar
                   </Button>
                   <Button
@@ -152,7 +208,6 @@ function Saidas() {
         </Tbody>
       </Table>
 
-      {/* Modal de Confirmação para Exclusão */}
       <AlertDialog
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
@@ -20,7 +20,9 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  useToast,
 } from "@chakra-ui/react";
+import axios from "axios";
 
 function Entradas() {
   const [entradas, setEntradas] = useState([]);
@@ -32,9 +34,31 @@ function Entradas() {
   });
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [entradaParaExcluir, setEntradaParaExcluir] = useState(null);
+  const [entradaParaEditar, setEntradaParaEditar] = useState(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = React.useRef();
+  const cancelRef = useRef();
+  const toast = useToast();
+
+  const fetchEntradas = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/entradas");
+      setEntradas(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar entradas:", error);
+      toast({
+        title: "Erro ao carregar entradas.",
+        description: "Não foi possível conectar ao servidor.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchEntradas();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -44,10 +68,29 @@ function Entradas() {
     });
   };
 
-  const adicionarEntrada = () => {
-    setEntradas([...entradas, { ...novaEntrada, id: Date.now() }]);
-    setNovaEntrada({ descricao: "", valor: "", data: "", salario: false });
-    setMostrarFormulario(false);
+  const adicionarEntrada = async () => {
+    try {
+      if (entradaParaEditar) {
+        await axios.put(`http://localhost:8080/api/entradas/${entradaParaEditar.id}`, novaEntrada);
+        toast({ title: "Entrada editada com sucesso!", status: "success", duration: 3000 });
+      } else {
+        await axios.post("http://localhost:8080/api/entradas", novaEntrada);
+        toast({ title: "Entrada adicionada com sucesso!", status: "success", duration: 3000 });
+      }
+      setNovaEntrada({ descricao: "", valor: "", data: "", salario: false });
+      setMostrarFormulario(false);
+      setEntradaParaEditar(null);
+      fetchEntradas();
+    } catch (error) {
+      console.error("Erro ao salvar entrada:", error);
+      toast({ title: "Erro ao salvar entrada.", status: "error", duration: 3000 });
+    }
+  };
+
+  const iniciarEdicao = (entrada) => {
+    setNovaEntrada(entrada);
+    setEntradaParaEditar(entrada);
+    setMostrarFormulario(true);
   };
 
   const confirmarExclusao = (id) => {
@@ -55,10 +98,24 @@ function Entradas() {
     onOpen();
   };
 
-  const excluirEntrada = () => {
-    setEntradas(entradas.filter((entrada) => entrada.id !== entradaParaExcluir));
-    setEntradaParaExcluir(null);
-    onClose();
+  const excluirEntrada = async () => {
+    try {
+      await axios.delete(`http://localhost:8080/api/entradas/${entradaParaExcluir}`);
+      toast({ title: "Entrada excluída com sucesso.", status: "info", duration: 3000 });
+      setEntradaParaExcluir(null);
+      onClose();
+      fetchEntradas();
+    } catch (error) {
+      console.error("Erro ao excluir entrada:", error);
+      toast({ title: "Erro ao excluir entrada.", status: "error", duration: 3000 });
+    }
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
   };
 
   return (
@@ -68,7 +125,7 @@ function Entradas() {
           Entradas
         </Text>
         <Button colorScheme="green" onClick={() => setMostrarFormulario(!mostrarFormulario)}>
-          Nova Entrada
+          {mostrarFormulario ? "Cancelar" : "Nova Entrada"}
         </Button>
       </HStack>
 
@@ -111,7 +168,7 @@ function Entradas() {
             />
           </HStack>
           <Button colorScheme="blue" onClick={adicionarEntrada}>
-            Adicionar
+            {entradaParaEditar ? "Salvar Edição" : "Adicionar"}
           </Button>
         </VStack>
       )}
@@ -130,12 +187,12 @@ function Entradas() {
           {entradas.map((entrada) => (
             <Tr key={entrada.id}>
               <Td color="whiteAlpha.900">{entrada.descricao}</Td>
-              <Td color="whiteAlpha.900">R$ {entrada.valor}</Td>
+              <Td color="whiteAlpha.900">{formatCurrency(entrada.valor)}</Td>
               <Td color="whiteAlpha.900">{entrada.data}</Td>
               <Td color="whiteAlpha.900">{entrada.salario ? "Sim" : "Não"}</Td>
               <Td>
                 <HStack spacing={2}>
-                  <Button size="sm" colorScheme="yellow">
+                  <Button size="sm" colorScheme="yellow" onClick={() => iniciarEdicao(entrada)}>
                     Editar
                   </Button>
                   <Button
