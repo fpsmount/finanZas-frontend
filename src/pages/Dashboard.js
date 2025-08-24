@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Flex,
@@ -36,6 +36,7 @@ import {
   Legend,
 } from "recharts";
 import { Link as RouterLink } from 'react-router-dom';
+import axios from "axios";
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("pt-BR", {
@@ -43,19 +44,6 @@ const formatCurrency = (value) => {
     currency: "BRL",
   }).format(value);
 };
-
-const mockEntradas = [
-  { id: 1, descricao: "Salário Mensal", valor: 3000, data: "2023-10-01" },
-  { id: 2, descricao: "Freelance - Projeto X", valor: 850, data: "2023-10-05" },
-  { id: 3, descricao: "Venda de Item Usado", valor: 150, data: "2023-10-10" },
-];
-
-const mockSaidas = [
-  { id: 1, descricao: "Aluguel", valor: 1500, data: "2023-10-02" },
-  { id: 2, descricao: "Conta de Luz", valor: 250, data: "2023-10-08" },
-  { id: 3, descricao: "Supermercado", valor: 450, data: "2023-10-12" },
-  { id: 4, descricao: "Internet", valor: 100, data: "2023-10-15" },
-];
 
 const WelcomeCard = () => (
   <Card bg="#2D2D2D" p={6} mb={10}>
@@ -117,15 +105,31 @@ function Dashboard() {
   const { isOpen: isEntradasOpen, onOpen: onEntradasOpen, onClose: onEntradasClose } = useDisclosure();
   const { isOpen: isSaidasOpen, onOpen: onSaidasOpen, onClose: onSaidasClose } = useDisclosure();
 
-  const resumo = {
-    entradas: mockEntradas.reduce((acc, e) => acc + Number(e.valor), 0),
-    saidas: mockSaidas.reduce((acc, s) => acc + Number(s.valor), 0),
+  const [entradas, setEntradas] = useState([]);
+  const [saidas, setSaidas] = useState([]);
+
+  const fetchDados = async () => {
+    try {
+      const entradasResponse = await axios.get("http://localhost:8080/api/entradas");
+      setEntradas(entradasResponse.data);
+      const saidasResponse = await axios.get("http://localhost:8080/api/saidas");
+      setSaidas(saidasResponse.data);
+    } catch (error) {
+      console.error("Erro ao buscar dados do dashboard:", error);
+    }
   };
-  const saldo = resumo.entradas - resumo.saidas;
+
+  useEffect(() => {
+    fetchDados();
+  }, []);
+
+  const totalEntradas = entradas.reduce((acc, e) => acc + Number(e.valor), 0);
+  const totalSaidas = saidas.reduce((acc, s) => acc + Number(s.valor), 0);
+  const saldo = totalEntradas - totalSaidas;
 
   const dadosGrafico = [
-    { name: "Entradas", value: resumo.entradas },
-    { name: "Saídas", value: resumo.saidas },
+    { name: "Entradas", value: totalEntradas },
+    { name: "Saídas", value: totalSaidas },
   ];
 
   const cores = ["#2ecc71", "#e74c3c"];
@@ -144,7 +148,7 @@ function Dashboard() {
             <CardBody>
               <Stat>
                 <StatLabel color="whiteAlpha.900">Entradas</StatLabel>
-                <StatNumber color="green.500">{formatCurrency(resumo.entradas)}</StatNumber>
+                <StatNumber color="green.500">{formatCurrency(totalEntradas)}</StatNumber>
               </Stat>
             </CardBody>
           </Card>
@@ -152,7 +156,7 @@ function Dashboard() {
             <CardBody>
               <Stat>
                 <StatLabel color="whiteAlpha.900">Saídas</StatLabel>
-                <StatNumber color="red.500">{formatCurrency(resumo.saidas)}</StatNumber>
+                <StatNumber color="red.500">{formatCurrency(totalSaidas)}</StatNumber>
               </Stat>
             </CardBody>
           </Card>
@@ -193,17 +197,17 @@ function Dashboard() {
         </Box>
       </Box>
 
-      <MiniRelatorioModal 
-        isOpen={isEntradasOpen} 
-        onClose={onEntradasClose} 
-        data={mockEntradas} 
-        title="Mini-Relatório de Entradas" 
+      <MiniRelatorioModal
+        isOpen={isEntradasOpen}
+        onClose={onEntradasClose}
+        data={entradas}
+        title="Mini-Relatório de Entradas"
       />
-      <MiniRelatorioModal 
-        isOpen={isSaidasOpen} 
-        onClose={onSaidasClose} 
-        data={mockSaidas} 
-        title="Mini-Relatório de Saídas" 
+      <MiniRelatorioModal
+        isOpen={isSaidasOpen}
+        onClose={onSaidasClose}
+        data={saidas}
+        title="Mini-Relatório de Saídas"
       />
     </Box>
   );
