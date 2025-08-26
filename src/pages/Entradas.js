@@ -42,7 +42,7 @@ function Entradas() {
 
   const fetchEntradas = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/entradas");
+      const response = await axios.get("https://finanzas-backend-rmik.onrender.com/api/entradas");
       setEntradas(response.data);
     } catch (error) {
       console.error("Erro ao buscar entradas:", error);
@@ -71,10 +71,10 @@ function Entradas() {
   const adicionarEntrada = async () => {
     try {
       if (entradaParaEditar) {
-        await axios.put(`http://localhost:8080/api/entradas/${entradaParaEditar.id}`, novaEntrada);
+        await axios.put(`https://finanzas-backend-rmik.onrender.com/api/entradas/${entradaParaEditar.id}`, novaEntrada);
         toast({ title: "Entrada editada com sucesso!", status: "success", duration: 3000 });
       } else {
-        await axios.post("http://localhost:8080/api/entradas", novaEntrada);
+        await axios.post("https://finanzas-backend-rmik.onrender.com/api/entradas", novaEntrada);
         toast({ title: "Entrada adicionada com sucesso!", status: "success", duration: 3000 });
       }
       setNovaEntrada({ descricao: "", valor: "", data: "", salario: false });
@@ -100,7 +100,7 @@ function Entradas() {
 
   const excluirEntrada = async () => {
     try {
-      await axios.delete(`http://localhost:8080/api/entradas/${entradaParaExcluir}`);
+      await axios.delete(`https://finanzas-backend-rmik.onrender.com/api/entradas/${entradaParaExcluir}`);
       toast({ title: "Entrada excluída com sucesso.", status: "info", duration: 3000 });
       setEntradaParaExcluir(null);
       onClose();

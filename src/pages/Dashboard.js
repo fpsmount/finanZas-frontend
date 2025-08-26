@@ -110,9 +110,9 @@ function Dashboard() {
 
   const fetchDados = async () => {
     try {
-      const entradasResponse = await axios.get("http://localhost:8080/api/entradas");
+      const entradasResponse = axios.get("https://finanzas-backend-rmik.onrender.com/api/entradas");
       setEntradas(entradasResponse.data);
-      const saidasResponse = await axios.get("http://localhost:8080/api/saidas");
+      const saidasResponse = await axios.get("https://finanzas-backend-rmik.onrender.com/api/saidas");
       setSaidas(saidasResponse.data);
     } catch (error) {
       console.error("Erro ao buscar dados do dashboard:", error);

@@ -38,9 +38,9 @@ function Relatorios() {
 
   const fetchDados = async () => {
     try {
-      const entradasResponse = await axios.get("http://localhost:8080/api/entradas");
+      const entradasResponse = await axios.get("https://finanzas-backend-rmik.onrender.com/api/entradas");
       setEntradas(entradasResponse.data);
-      const saidasResponse = await axios.get("http://localhost:8080/api/saidas");
+      const saidasResponse = await axios.get("https://finanzas-backend-rmik.onrender.com/api/saidas");
       setSaidas(saidasResponse.data);
     } catch (error) {
       console.error("Erro ao buscar dados dos relatórios:", error);

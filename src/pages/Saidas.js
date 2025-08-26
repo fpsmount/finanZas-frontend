@@ -42,7 +42,7 @@ function Saidas() {
 
   const fetchSaidas = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/saidas");
+      const response = await axios.get("https://finanzas-backend-rmik.onrender.com/api/saidas");
       setSaidas(response.data);
     } catch (error) {
       console.error("Erro ao buscar saídas:", error);
@@ -71,10 +71,10 @@ function Saidas() {
   const adicionarSaida = async () => {
     try {
       if (saidaParaEditar) {
-        await axios.put(`http://localhost:8080/api/saidas/${saidaParaEditar.id}`, novaSaida);
+        await axios.put(`https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaEditar.id}`, novaSaida);
         toast({ title: "Saída editada com sucesso!", status: "success", duration: 3000 });
       } else {
-        await axios.post("http://localhost:8080/api/saidas", novaSaida);
+        await axios.post("https://finanzas-backend-rmik.onrender.com/api/saidas", novaSaida);
         toast({ title: "Saída adicionada com sucesso!", status: "success", duration: 3000 });
       }
       setNovaSaida({ descricao: "", valor: "", data: "", tipo: "variável" });
@@ -100,7 +100,7 @@ function Saidas() {
 
   const excluirSaida = async () => {
     try {
-      await axios.delete(`http://localhost:8080/api/saidas/${saidaParaExcluir}`);
+      await axios.delete(`https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaExcluir}`);
       toast({ title: "Saída excluída com sucesso.", status: "info", duration: 3000 });
       setSaidaParaExcluir(null);
       onClose();
