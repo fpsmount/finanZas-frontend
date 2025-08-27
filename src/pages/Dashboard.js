@@ -110,7 +110,7 @@ function Dashboard() {
 
   const fetchDados = async () => {
     try {
-      const entradasResponse = axios.get("https://finanzas-backend-rmik.onrender.com/api/entradas");
+      const entradasResponse = await axios.get("https://finanzas-backend-rmik.onrender.com/api/entradas");
       setEntradas(entradasResponse.data);
       const saidasResponse = await axios.get("https://finanzas-backend-rmik.onrender.com/api/saidas");
       setSaidas(saidasResponse.data);
