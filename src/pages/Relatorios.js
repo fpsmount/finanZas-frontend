@@ -62,13 +62,11 @@ function Relatorios() {
   const totalSaidas = saidas.reduce((acc, s) => acc + Number(s.valor), 0);
   const saldo = totalEntradas - totalSaidas;
 
-  // Dados para gráfico de barras
   const dataBarras = [
     { name: "Entradas", valor: totalEntradas },
     { name: "Saídas", valor: totalSaidas },
   ];
 
-  // Dados para gráfico de pizza (fixas x variáveis)
   const fixas = saidas.filter((s) => s.tipo === "fixa").reduce((acc, s) => acc + Number(s.valor), 0);
   const variaveis = saidas.filter((s) => s.tipo === "variável").reduce((acc, s) => acc + Number(s.valor), 0);
   const dataPizza = [
@@ -81,15 +79,11 @@ function Relatorios() {
     { name: "Variáveis", valor: variaveis },
   ];
 
-  const COLORS = ["#3182CE", "#E53E3E"]; // azul e vermelho
+  const COLORS = ["#3182CE", "#E53E3E"]; 
 
   return (
     <Box p={6}>
-      <Text fontSize="2xl" fontWeight="bold" mb={6} color="white">
-        Relatórios Financeiros
-      </Text>
 
-      {/* Resumo */}
       <SimpleGrid columns={[1, 3]} spacing={6} mb={8}>
         <Card bg="#2D2D2D">
           <CardBody>
@@ -119,7 +113,6 @@ function Relatorios() {
         </Card>
       </SimpleGrid>
 
-      {/* Gráficos */}
       <SimpleGrid columns={[1, 2]} spacing={6}>
         <Card bg="#2D2D2D">
           <CardBody>

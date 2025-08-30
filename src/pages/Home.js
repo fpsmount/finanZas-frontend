@@ -137,9 +137,6 @@ function Dashboard() {
   return (
     <Box p={6}>
       <Box maxW="1200px" mx="auto">
-        <Text fontSize="3xl" fontWeight="bold" mb={6} color="white">
-          Dashboard
-        </Text>
 
         <WelcomeCard />
 

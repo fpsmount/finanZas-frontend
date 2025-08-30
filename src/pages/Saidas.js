@@ -118,6 +118,20 @@ function Saidas() {
     }).format(value);
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
+  const formatType = (typeString) => {
+    if(typeString == 'variável'){
+      return 'Variável';
+    } else {
+      return 'Fixa'
+    }
+  }
+
   return (
     <Box p={6}>
       <HStack justify="space-between" mb={4}>
@@ -187,8 +201,8 @@ function Saidas() {
             <Tr key={saida.id}>
               <Td color="whiteAlpha.900">{saida.descricao}</Td>
               <Td color="whiteAlpha.900">{formatCurrency(saida.valor)}</Td>
-              <Td color="whiteAlpha.900">{saida.data}</Td>
-              <Td color="whiteAlpha.900">{saida.tipo}</Td>
+              <Td color="whiteAlpha.900">{formatDate(saida.data)}</Td>
+              <Td color="whiteAlpha.900">{formatType(saida.tipo)}</Td>
               <Td>
                 <HStack spacing={2}>
                   <Button size="sm" colorScheme="yellow" onClick={() => iniciarEdicao(saida)}>

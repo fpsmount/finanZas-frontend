@@ -14,20 +14,18 @@ import {
   Link
 } from 'react-router-dom';
 
-import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 import Entradas from './pages/Entradas';
 import Saidas from './pages/Saidas';
 import Relatorios from './pages/Relatorios';
 import Configuracoes from './pages/Configuracoes';
-import Sair from './pages/Sair';
 
 const menuItems = [
-  { name: 'Dashboard', path: '/' },
+  { name: 'Home', path: '/' },
   { name: 'Entradas', path: '/entradas' },
   { name: 'Saídas', path: '/saidas' },
   { name: 'Relatórios', path: '/relatorios' },
-  { name: 'Configurações', path: '/configuracoes' },
-  { name: 'Sair', path: '/sair' }
+  { name: 'Configurações', path: '/configuracoes' }
 ];
 
 function Navigation() {
@@ -77,12 +75,11 @@ function App() {
 
         <Flex justify="center" align="center" px={8} pb={12}>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<Home />} />
             <Route path="/entradas" element={<Entradas />} />
             <Route path="/saidas" element={<Saidas />} />
             <Route path="/relatorios" element={<Relatorios />} />
             <Route path="/configuracoes" element={<Configuracoes />} />
-            <Route path="/sair" element={<Sair />} />
           </Routes>
         </Flex>
       </Router>

@@ -20,8 +20,8 @@ import {
 } from "@chakra-ui/react";
 
 function Configuracoes() {
-  const [nome, setNome] = useState("Usuário Exemplo");
-  const [email, setEmail] = useState("usuario@email.com");
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const toast = useToast();
   const { colorMode, toggleColorMode } = useColorMode();
@@ -48,7 +48,7 @@ function Configuracoes() {
   };
 
   return (
-    <Box p={6}>
+    <Box p={6} align="center">
       <Text fontSize="3xl" fontWeight="bold" mb={6} color="white">
         Configurações
       </Text>

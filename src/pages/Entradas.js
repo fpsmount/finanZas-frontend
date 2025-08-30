@@ -117,6 +117,12 @@ function Entradas() {
       currency: "BRL",
     }).format(value);
   };
+  
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
+  };
 
   return (
     <Box p={6}>
@@ -173,43 +179,44 @@ function Entradas() {
         </VStack>
       )}
 
-      <Table variant="simple" bg="#2D2D2D" borderColor="whiteAlpha.400">
-        <Thead>
-          <Tr>
-            <Th color="whiteAlpha.900">Descrição</Th>
-            <Th color="whiteAlpha.900">Valor</Th>
-            <Th color="whiteAlpha.900">Data</Th>
-            <Th color="whiteAlpha.900">Salário</Th>
-            <Th color="whiteAlpha.900">Ações</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {entradas.map((entrada) => (
-            <Tr key={entrada.id}>
-              <Td color="whiteAlpha.900">{entrada.descricao}</Td>
-              <Td color="whiteAlpha.900">{formatCurrency(entrada.valor)}</Td>
-              <Td color="whiteAlpha.900">{entrada.data}</Td>
-              <Td color="whiteAlpha.900">{entrada.salario ? "Sim" : "Não"}</Td>
-              <Td>
-                <HStack spacing={2}>
-                  <Button size="sm" colorScheme="yellow" onClick={() => iniciarEdicao(entrada)}>
-                    Editar
-                  </Button>
-                  <Button
-                    size="sm"
-                    colorScheme="red"
-                    onClick={() => confirmarExclusao(entrada.id)}
-                  >
-                    Excluir
-                  </Button>
-                </HStack>
-              </Td>
+      <Box overflowX={{ base: "auto", md: "hidden" }}>
+        <Table variant="simple" bg="#2D2D2D" borderColor="whiteAlpha.400">
+          <Thead>
+            <Tr>
+              <Th color="whiteAlpha.900">Descrição</Th>
+              <Th color="whiteAlpha.900">Valor</Th>
+              <Th color="whiteAlpha.900">Data</Th>
+              <Th color="whiteAlpha.900">Salário</Th>
+              <Th color="whiteAlpha.900">Ações</Th>
             </Tr>
-          ))}
-        </Tbody>
-      </Table>
+          </Thead>
+          <Tbody>
+            {entradas.map((entrada) => (
+              <Tr key={entrada.id}>
+                <Td color="whiteAlpha.900">{entrada.descricao}</Td>
+                <Td color="whiteAlpha.900">{formatCurrency(entrada.valor)}</Td>
+                <Td color="whiteAlpha.900">{formatDate(entrada.data)}</Td>
+                <Td color="whiteAlpha.900">{entrada.salario ? "Sim" : "Não"}</Td>
+                <Td>
+                  <HStack spacing={2}>
+                    <Button size="sm" colorScheme="yellow" onClick={() => iniciarEdicao(entrada)}>
+                      Editar
+                    </Button>
+                    <Button
+                      size="sm"
+                      colorScheme="red"
+                      onClick={() => confirmarExclusao(entrada.id)}
+                    >
+                      Excluir
+                    </Button>
+                  </HStack>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </Box>
 
-      {/* Modal de Confirmação para Exclusão */}
       <AlertDialog
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}
