@@ -54,9 +54,11 @@ function Navigation() {
       color="white"
     >
       <Box position="absolute" left={{ base: 4, md: '30px' }}>
-        <Text fontSize="2xl" fontWeight="bold">
-          FinanZas
-        </Text>
+        <Link to="/">
+          <Text fontSize="2xl" fontWeight="bold">
+            FinanZas
+          </Text>
+        </Link>
       </Box>
 
       {isDesktop ? (
