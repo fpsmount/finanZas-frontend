@@ -21,6 +21,7 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   useToast,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import axios from "axios";
 
@@ -39,6 +40,7 @@ function Entradas() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
   const toast = useToast();
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   const fetchEntradas = async () => {
     try {
@@ -179,43 +181,83 @@ function Entradas() {
         </VStack>
       )}
 
-      <Box overflowX={{ base: "auto", md: "hidden" }}>
-        <Table variant="simple" bg="#2D2D2D" borderColor="whiteAlpha.400">
-          <Thead>
-            <Tr>
-              <Th color="whiteAlpha.900">Descrição</Th>
-              <Th color="whiteAlpha.900">Valor</Th>
-              <Th color="whiteAlpha.900">Data</Th>
-              <Th color="whiteAlpha.900">Salário</Th>
-              <Th color="whiteAlpha.900">Ações</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {entradas.map((entrada) => (
-              <Tr key={entrada.id}>
-                <Td color="whiteAlpha.900">{entrada.descricao}</Td>
-                <Td color="whiteAlpha.900">{formatCurrency(entrada.valor)}</Td>
-                <Td color="whiteAlpha.900">{formatDate(entrada.data)}</Td>
-                <Td color="whiteAlpha.900">{entrada.salario ? "Sim" : "Não"}</Td>
-                <Td>
-                  <HStack spacing={2}>
-                    <Button size="sm" colorScheme="yellow" onClick={() => iniciarEdicao(entrada)}>
-                      Editar
-                    </Button>
-                    <Button
-                      size="sm"
-                      colorScheme="red"
-                      onClick={() => confirmarExclusao(entrada.id)}
-                    >
-                      Excluir
-                    </Button>
-                  </HStack>
-                </Td>
+      {isMobile ? (
+        <VStack spacing={4} align="stretch">
+          {entradas.map((entrada) => (
+            <Box
+              key={entrada.id}
+              p={4}
+              bg="#2D2D2D"
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor="whiteAlpha.400"
+            >
+              <HStack justify="space-between">
+                <Text fontWeight="bold" color="whiteAlpha.900">
+                  {entrada.descricao}
+                </Text>
+                <Text fontWeight="bold" color="green.300">
+                  {formatCurrency(entrada.valor)}
+                </Text>
+              </HStack>
+              <HStack justify="space-between" mt={2}>
+                <Text fontSize="sm" color="whiteAlpha.700">
+                  {formatDate(entrada.data)}
+                </Text>
+                <Text fontSize="sm" color="whiteAlpha.700">
+                  Salário: {entrada.salario ? "Sim" : "Não"}
+                </Text>
+              </HStack>
+              <HStack justify="flex-end" mt={4} spacing={2}>
+                <Button size="sm" colorScheme="yellow" onClick={() => iniciarEdicao(entrada)}>
+                  Editar
+                </Button>
+                <Button size="sm" colorScheme="red" onClick={() => confirmarExclusao(entrada.id)}>
+                  Excluir
+                </Button>
+              </HStack>
+            </Box>
+          ))}
+        </VStack>
+      ) : (
+        <Box overflowX={{ base: "auto", md: "hidden" }}>
+          <Table variant="simple" bg="#2D2D2D" borderColor="whiteAlpha.400">
+            <Thead>
+              <Tr>
+                <Th color="whiteAlpha.900">Descrição</Th>
+                <Th color="whiteAlpha.900">Valor</Th>
+                <Th color="whiteAlpha.900">Data</Th>
+                <Th color="whiteAlpha.900">Salário</Th>
+                <Th color="whiteAlpha.900">Ações</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </Box>
+            </Thead>
+            <Tbody>
+              {entradas.map((entrada) => (
+                <Tr key={entrada.id}>
+                  <Td color="whiteAlpha.900">{entrada.descricao}</Td>
+                  <Td color="whiteAlpha.900">{formatCurrency(entrada.valor)}</Td>
+                  <Td color="whiteAlpha.900">{formatDate(entrada.data)}</Td>
+                  <Td color="whiteAlpha.900">{entrada.salario ? "Sim" : "Não"}</Td>
+                  <Td>
+                    <HStack spacing={2}>
+                      <Button size="sm" colorScheme="yellow" onClick={() => iniciarEdicao(entrada)}>
+                        Editar
+                      </Button>
+                      <Button
+                        size="sm"
+                        colorScheme="red"
+                        onClick={() => confirmarExclusao(entrada.id)}
+                      >
+                        Excluir
+                      </Button>
+                    </HStack>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      )}
 
       <AlertDialog
         isOpen={isOpen}

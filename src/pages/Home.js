@@ -10,7 +10,7 @@ import {
   Card,
   CardBody,
   Button,
-  HStack,
+  Stack,
   VStack,
   Table,
   Thead,
@@ -54,43 +54,45 @@ const WelcomeCard = () => (
       <Text color="whiteAlpha.700" textAlign="center">
         Comece a gerenciar suas finanças registrando uma transação.
       </Text>
-      <HStack spacing={4}>
+      <Stack direction={{ base: 'column', sm: 'row' }} spacing={4}>
         <Button as={RouterLink} to="/entradas" colorScheme="green">
           Registrar uma Entrada
         </Button>
         <Button as={RouterLink} to="/saidas" colorScheme="red">
           Registrar uma Saída
         </Button>
-      </HStack>
+      </Stack>
     </VStack>
   </Card>
 );
 
 const MiniRelatorioModal = ({ isOpen, onClose, data, title }) => (
-  <Modal isOpen={isOpen} onClose={onClose} size="xl">
+  <Modal isOpen={isOpen} onClose={onClose} size={{ base: "full", md: "xl" }} scrollBehavior="inside">
     <ModalOverlay />
     <ModalContent bg="#191919" color="white">
       <ModalHeader>{title}</ModalHeader>
       <ModalCloseButton />
       <ModalBody>
-        <Table variant="simple" colorScheme="whiteAlpha">
-          <Thead>
-            <Tr>
-              <Th color="whiteAlpha.900">Descrição</Th>
-              <Th color="whiteAlpha.900">Valor</Th>
-              <Th color="whiteAlpha.900">Data</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {data.map((item) => (
-              <Tr key={item.id}>
-                <Td color="whiteAlpha.900">{item.descricao}</Td>
-                <Td color="whiteAlpha.900">{formatCurrency(item.valor)}</Td>
-                <Td color="whiteAlpha.900">{item.data}</Td>
+        <Box overflowX="auto">
+          <Table variant="simple" colorScheme="whiteAlpha">
+            <Thead>
+              <Tr>
+                <Th color="whiteAlpha.900">Descrição</Th>
+                <Th color="whiteAlpha.900" isNumeric>Valor</Th>
+                <Th color="whiteAlpha.900">Data</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
+            </Thead>
+            <Tbody>
+              {data.map((item) => (
+                <Tr key={item.id}>
+                  <Td color="whiteAlpha.900">{item.descricao}</Td>
+                  <Td color="whiteAlpha.900" isNumeric>{formatCurrency(item.valor)}</Td>
+                  <Td color="whiteAlpha.900">{item.data}</Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
       </ModalBody>
       <ModalFooter>
         <Button colorScheme="blue" onClick={onClose}>
@@ -135,12 +137,12 @@ function Dashboard() {
   const cores = ["#2ecc71", "#e74c3c"];
 
   return (
-    <Box p={6}>
+    <Box p={{ base: 4, md: 6 }}>
       <Box maxW="1200px" mx="auto">
 
         <WelcomeCard />
 
-        <SimpleGrid columns={[1, 3]} spacing={6} mb={10}>
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={10}>
           <Card bg="#2D2D2D" cursor="pointer" onClick={onEntradasOpen}>
             <CardBody>
               <Stat>
@@ -171,7 +173,7 @@ function Dashboard() {
           </Card>
         </SimpleGrid>
 
-        <Box w="100%" h="300px" bg="#2D2D2D" rounded="md" shadow="md" p={4}>
+        <Box w="100%" h={{ base: "250px", md: "300px" }} bg="#2D2D2D" rounded="md" shadow="md" p={4}>
           <ResponsiveContainer>
             <PieChart>
               <Pie

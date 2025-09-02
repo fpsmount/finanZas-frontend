@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  useBreakpointValue,
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
@@ -39,6 +40,7 @@ function Saidas() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
   const toast = useToast();
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   const fetchSaidas = async () => {
     try {
@@ -186,41 +188,79 @@ function Saidas() {
         </VStack>
       )}
 
-      <Table variant="simple" bg="#2D2D2D" borderColor="whiteAlpha.400">
-        <Thead>
-          <Tr>
-            <Th color="whiteAlpha.900">Descrição</Th>
-            <Th color="whiteAlpha.900">Valor</Th>
-            <Th color="whiteAlpha.900">Data</Th>
-            <Th color="whiteAlpha.900">Tipo</Th>
-            <Th color="whiteAlpha.900">Ações</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
+      {isMobile ? (
+        <VStack spacing={4} align="stretch">
           {saidas.map((saida) => (
-            <Tr key={saida.id}>
-              <Td color="whiteAlpha.900">{saida.descricao}</Td>
-              <Td color="whiteAlpha.900">{formatCurrency(saida.valor)}</Td>
-              <Td color="whiteAlpha.900">{formatDate(saida.data)}</Td>
-              <Td color="whiteAlpha.900">{formatType(saida.tipo)}</Td>
-              <Td>
-                <HStack spacing={2}>
-                  <Button size="sm" colorScheme="yellow" onClick={() => iniciarEdicao(saida)}>
-                    Editar
-                  </Button>
-                  <Button
-                    size="sm"
-                    colorScheme="red"
-                    onClick={() => confirmarExclusao(saida.id)}
-                  >
-                    Excluir
-                  </Button>
-                </HStack>
-              </Td>
-            </Tr>
+            <Box
+              key={saida.id}
+              p={4}
+              bg="#2D2D2D"
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor="whiteAlpha.400"
+            >
+              <HStack justify="space-between">
+                <Text fontWeight="bold" color="whiteAlpha.900">
+                  {saida.descricao}
+                </Text>
+                <Text fontWeight="bold" color="red.300">
+                  {formatCurrency(saida.valor)}
+                </Text>
+              </HStack>
+              <HStack justify="space-between" mt={2}>
+                <Text fontSize="sm" color="whiteAlpha.700">
+                  {formatDate(saida.data)}
+                </Text>
+                <Text fontSize="sm" color="whiteAlpha.700">
+                  Tipo: {formatType(saida.tipo)}
+                </Text>
+              </HStack>
+              <HStack justify="flex-end" mt={4} spacing={2}>
+                <Button size="sm" colorScheme="yellow" onClick={() => iniciarEdicao(saida)}>
+                  Editar
+                </Button>
+                <Button size="sm" colorScheme="red" onClick={() => confirmarExclusao(saida.id)}>
+                  Excluir
+                </Button>
+              </HStack>
+            </Box>
           ))}
-        </Tbody>
-      </Table>
+        </VStack>
+      ) : (
+        <Box overflowX={{ base: "auto", md: "hidden" }}>
+          <Table variant="simple" bg="#2D2D2D" borderColor="whiteAlpha.400">
+            <Thead>
+              <Tr>
+                <Th color="whiteAlpha.900">Descrição</Th>
+                <Th color="whiteAlpha.900">Valor</Th>
+                <Th color="whiteAlpha.900">Data</Th>
+                <Th color="whiteAlpha.900">Tipo</Th>
+                <Th color="whiteAlpha.900">Ações</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {saidas.map((saida) => (
+                <Tr key={saida.id}>
+                  <Td color="whiteAlpha.900">{saida.descricao}</Td>
+                  <Td color="whiteAlpha.900">{formatCurrency(saida.valor)}</Td>
+                  <Td color="whiteAlpha.900">{formatDate(saida.data)}</Td>
+                  <Td color="whiteAlpha.900">{formatType(saida.tipo)}</Td>
+                  <Td>
+                    <HStack spacing={2}>
+                      <Button size="sm" colorScheme="yellow" onClick={() => iniciarEdicao(saida)}>
+                        Editar
+                      </Button>
+                      <Button size="sm" colorScheme="red" onClick={() => confirmarExclusao(saida.id)}>
+                        Excluir
+                      </Button>
+                    </HStack>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      )}
 
       <AlertDialog
         isOpen={isOpen}

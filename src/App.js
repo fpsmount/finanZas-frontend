@@ -4,7 +4,15 @@ import {
   HStack,
   Button,
   Text,
-  VStack
+  VStack,
+  IconButton,
+  useDisclosure,
+  Drawer,
+  DrawerBody,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import {
   BrowserRouter as Router,
@@ -13,6 +21,7 @@ import {
   useLocation,
   Link
 } from 'react-router-dom';
+import { HamburgerIcon } from '@chakra-ui/icons';
 
 import Home from './pages/Home';
 import Entradas from './pages/Entradas';
@@ -30,39 +39,71 @@ const menuItems = [
 
 function Navigation() {
   const location = useLocation();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const isDesktop = useBreakpointValue({ base: false, lg: true });
 
   return (
     <Flex
       as="nav"
       bg="transparent"
       pt="40px"
-      px={8}
+      px={{ base: 4, md: 8 }}
       pb={8}
       justify="center"
       align="center"
       color="white"
     >
-      <Box position="absolute" left="30px">
+      <Box position="absolute" left={{ base: 4, md: '30px' }}>
         <Text fontSize="2xl" fontWeight="bold">
           FinanZas
         </Text>
       </Box>
 
-      <HStack spacing={6}>
-        {menuItems.map((item) => (
-          <Button
-            key={item.name}
-            as={Link}
-            to={item.path}
-            variant="link"
-            color={location.pathname === item.path ? 'white' : 'whiteAlpha.700'}
-            fontWeight={location.pathname === item.path ? 'bold' : 'normal'}
-            _hover={{ textDecoration: 'underline', color: 'white' }}
-          >
-            {item.name}
-          </Button>
-        ))}
-      </HStack>
+      {isDesktop ? (
+        <HStack spacing={6}>
+          {menuItems.map((item) => (
+            <Button
+              key={item.name}
+              as={Link}
+              to={item.path}
+              variant="link"
+              color={location.pathname === item.path ? 'white' : 'whiteAlpha.700'}
+              fontWeight={location.pathname === item.path ? 'bold' : 'normal'}
+              _hover={{ textDecoration: 'underline', color: 'white' }}
+            >
+              {item.name}
+            </Button>
+          ))}
+        </HStack>
+      ) : (
+        <>
+          <IconButton
+            aria-label="Abrir menu"
+            icon={<HamburgerIcon />}
+            onClick={onOpen}
+            variant="ghost"
+            color="white"
+            position="absolute"
+            right={{ base: 4, md: '30px' }}
+            _hover={{ bg: 'whiteAlpha.300' }}
+          />
+          <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+            <DrawerOverlay />
+            <DrawerContent bg="#191919" color="white">
+              <DrawerCloseButton />
+              <DrawerBody>
+                <VStack spacing={6} mt={10} align="stretch">
+                  {menuItems.map((item) => (
+                    <Button key={item.name} as={Link} to={item.path} variant="link" color={location.pathname === item.path ? 'white' : 'whiteAlpha.700'} fontWeight={location.pathname === item.path ? 'bold' : 'normal'} _hover={{ textDecoration: 'underline', color: 'white' }} onClick={onClose} w="100%">
+                      {item.name}
+                    </Button>
+                  ))}
+                </VStack>
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
+        </>
+      )}
     </Flex>
   );
 }
