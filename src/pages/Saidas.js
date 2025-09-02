@@ -24,6 +24,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
+import { useAuth } from '../auth/AuthContext';
 
 function Saidas() {
   const [saidas, setSaidas] = useState([]);
@@ -41,10 +42,13 @@ function Saidas() {
   const cancelRef = useRef();
   const toast = useToast();
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const { currentUser } = useAuth(); 
 
   const fetchSaidas = async () => {
+    if (!currentUser) return;
     try {
-      const response = await axios.get("https://finanzas-backend-rmik.onrender.com/api/saidas");
+      const userId = currentUser.uid;
+      const response = await axios.get(`https://finanzas-backend-rmik.onrender.com/api/saidas?userId=${userId}`);
       setSaidas(response.data);
     } catch (error) {
       console.error("Erro ao buscar saídas:", error);
@@ -60,7 +64,7 @@ function Saidas() {
 
   useEffect(() => {
     fetchSaidas();
-  }, []);
+  }, [currentUser]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,12 +75,14 @@ function Saidas() {
   };
 
   const adicionarSaida = async () => {
+    if (!currentUser) return;
+    const userId = currentUser.uid;
     try {
       if (saidaParaEditar) {
-        await axios.put(`https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaEditar.id}`, novaSaida);
+        await axios.put(`https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaEditar.id}?userId=${userId}`, novaSaida);
         toast({ title: "Saída editada com sucesso!", status: "success", duration: 3000 });
       } else {
-        await axios.post("https://finanzas-backend-rmik.onrender.com/api/saidas", novaSaida);
+        await axios.post(`https://finanzas-backend-rmik.onrender.com/api/saidas?userId=${userId}`, { ...novaSaida, userId });
         toast({ title: "Saída adicionada com sucesso!", status: "success", duration: 3000 });
       }
       setNovaSaida({ descricao: "", valor: "", data: "", tipo: "variável" });
@@ -101,8 +107,10 @@ function Saidas() {
   };
 
   const excluirSaida = async () => {
+    if (!currentUser) return;
+    const userId = currentUser.uid;
     try {
-      await axios.delete(`https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaExcluir}`);
+      await axios.delete(`https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaExcluir}?userId=${userId}`);
       toast({ title: "Saída excluída com sucesso.", status: "info", duration: 3000 });
       setSaidaParaExcluir(null);
       onClose();

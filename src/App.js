@@ -13,34 +13,64 @@ import {
   DrawerContent,
   DrawerCloseButton,
   useBreakpointValue,
+  useToast,
 } from '@chakra-ui/react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
-  Link
+  Link,
+  useNavigate,
 } from 'react-router-dom';
 import { HamburgerIcon } from '@chakra-ui/icons';
 
+// Importe e crie novos componentes para as rotas
 import Home from './pages/Home';
 import Entradas from './pages/Entradas';
 import Saidas from './pages/Saidas';
 import Relatorios from './pages/Relatorios';
 import Configuracoes from './pages/Configuracoes';
+import LoginPage from './pages/Login'; // Novo componente de login
+import ProtectedRoutes from './ProtectedRoutes'; // Novo componente de rotas protegidas
+
+import { AuthProvider, useAuth } from './auth/AuthContext';
 
 const menuItems = [
   { name: 'Home', path: '/' },
   { name: 'Entradas', path: '/entradas' },
   { name: 'Saídas', path: '/saidas' },
   { name: 'Relatórios', path: '/relatorios' },
-  { name: 'Configurações', path: '/configuracoes' }
+  { name: 'Configurações', path: '/configuracoes' },
 ];
 
 function Navigation() {
   const location = useLocation();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const isDesktop = useBreakpointValue({ base: false, lg: true });
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+  const toast = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: 'Logout bem-sucedido!',
+        status: 'info',
+        duration: 3000,
+        isClosable: true,
+      });
+      navigate('/login');
+    } catch (error) {
+      toast({
+        title: 'Erro ao fazer logout.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   return (
     <Flex
@@ -61,7 +91,7 @@ function Navigation() {
         </Link>
       </Box>
 
-      {isDesktop ? (
+      {currentUser && isDesktop ? (
         <HStack spacing={6}>
           {menuItems.map((item) => (
             <Button
@@ -76,8 +106,11 @@ function Navigation() {
               {item.name}
             </Button>
           ))}
+          <Button colorScheme="red" onClick={handleLogout}>
+            Sair
+          </Button>
         </HStack>
-      ) : (
+      ) : currentUser ? (
         <>
           <IconButton
             aria-label="Abrir menu"
@@ -100,12 +133,15 @@ function Navigation() {
                       {item.name}
                     </Button>
                   ))}
+                  <Button colorScheme="red" onClick={() => { handleLogout(); onClose(); }}>
+                    Sair
+                  </Button>
                 </VStack>
               </DrawerBody>
             </DrawerContent>
           </Drawer>
         </>
-      )}
+      ) : null}
     </Flex>
   );
 }
@@ -114,17 +150,21 @@ function App() {
   return (
     <Box minHeight="100vh" bg="#191919">
       <Router>
-        <Navigation />
-
-        <Flex justify="center" align="center" px={8} pb={12}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/entradas" element={<Entradas />} />
-            <Route path="/saidas" element={<Saidas />} />
-            <Route path="/relatorios" element={<Relatorios />} />
-            <Route path="/configuracoes" element={<Configuracoes />} />
-          </Routes>
-        </Flex>
+        <AuthProvider>
+          <Navigation />
+          <Flex justify="center" align="center" px={8} pb={12}>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route element={<ProtectedRoutes />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/entradas" element={<Entradas />} />
+                <Route path="/saidas" element={<Saidas />} />
+                <Route path="/relatorios" element={<Relatorios />} />
+                <Route path="/configuracoes" element={<Configuracoes />} />
+              </Route>
+            </Routes>
+          </Flex>
+        </AuthProvider>
       </Router>
     </Box>
   );

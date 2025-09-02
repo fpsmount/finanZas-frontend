@@ -37,6 +37,7 @@ import {
 } from "recharts";
 import { Link as RouterLink } from 'react-router-dom';
 import axios from "axios";
+import { useAuth } from '../auth/AuthContext';
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("pt-BR", {
@@ -109,12 +110,15 @@ function Dashboard() {
 
   const [entradas, setEntradas] = useState([]);
   const [saidas, setSaidas] = useState([]);
+  const { currentUser } = useAuth();
 
   const fetchDados = async () => {
+    if (!currentUser) return; 
     try {
-      const entradasResponse = await axios.get("https://finanzas-backend-rmik.onrender.com/api/entradas");
+      const userId = currentUser.uid;
+      const entradasResponse = await axios.get(`https://finanzas-backend-rmik.onrender.com/api/entradas?userId=${userId}`);
       setEntradas(entradasResponse.data);
-      const saidasResponse = await axios.get("https://finanzas-backend-rmik.onrender.com/api/saidas");
+      const saidasResponse = await axios.get(`https://finanzas-backend-rmik.onrender.com/api/saidas?userId=${userId}`);
       setSaidas(saidasResponse.data);
     } catch (error) {
       console.error("Erro ao buscar dados do dashboard:", error);
@@ -123,7 +127,7 @@ function Dashboard() {
 
   useEffect(() => {
     fetchDados();
-  }, []);
+  }, [currentUser]);
 
   const totalEntradas = entradas.reduce((acc, e) => acc + Number(e.valor), 0);
   const totalSaidas = saidas.reduce((acc, s) => acc + Number(s.valor), 0);

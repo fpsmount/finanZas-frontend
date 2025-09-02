@@ -24,6 +24,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import axios from "axios";
+import { useAuth } from '../auth/AuthContext';
 
 function Entradas() {
   const [entradas, setEntradas] = useState([]);
@@ -41,10 +42,13 @@ function Entradas() {
   const cancelRef = useRef();
   const toast = useToast();
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const { currentUser } = useAuth(); 
 
   const fetchEntradas = async () => {
+    if (!currentUser) return;
     try {
-      const response = await axios.get("https://finanzas-backend-rmik.onrender.com/api/entradas");
+      const userId = currentUser.uid;
+      const response = await axios.get(`https://finanzas-backend-rmik.onrender.com/api/entradas?userId=${userId}`);
       setEntradas(response.data);
     } catch (error) {
       console.error("Erro ao buscar entradas:", error);
@@ -60,7 +64,7 @@ function Entradas() {
 
   useEffect(() => {
     fetchEntradas();
-  }, []);
+  }, [currentUser]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -71,12 +75,14 @@ function Entradas() {
   };
 
   const adicionarEntrada = async () => {
+    if (!currentUser) return;
+    const userId = currentUser.uid;
     try {
       if (entradaParaEditar) {
-        await axios.put(`https://finanzas-backend-rmik.onrender.com/api/entradas/${entradaParaEditar.id}`, novaEntrada);
+        await axios.put(`https://finanzas-backend-rmik.onrender.com/api/entradas/${entradaParaEditar.id}?userId=${userId}`, novaEntrada);
         toast({ title: "Entrada editada com sucesso!", status: "success", duration: 3000 });
       } else {
-        await axios.post("https://finanzas-backend-rmik.onrender.com/api/entradas", novaEntrada);
+        await axios.post(`https://finanzas-backend-rmik.onrender.com/api/entradas?userId=${userId}`, { ...novaEntrada, userId });
         toast({ title: "Entrada adicionada com sucesso!", status: "success", duration: 3000 });
       }
       setNovaEntrada({ descricao: "", valor: "", data: "", salario: false });
@@ -101,8 +107,10 @@ function Entradas() {
   };
 
   const excluirEntrada = async () => {
+    if (!currentUser) return;
+    const userId = currentUser.uid;
     try {
-      await axios.delete(`https://finanzas-backend-rmik.onrender.com/api/entradas/${entradaParaExcluir}`);
+      await axios.delete(`https://finanzas-backend-rmik.onrender.com/api/entradas/${entradaParaExcluir}?userId=${userId}`);
       toast({ title: "Entrada excluída com sucesso.", status: "info", duration: 3000 });
       setEntradaParaExcluir(null);
       onClose();
