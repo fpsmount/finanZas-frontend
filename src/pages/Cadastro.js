@@ -13,8 +13,8 @@ import {
   Image,
   Link,
 } from '@chakra-ui/react';
-import { useAuth } from '../auth/AuthContext';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 
 function CadastroPage() {
   const [email, setEmail] = useState('');
@@ -51,11 +51,11 @@ function CadastroPage() {
   };
 
   return (
-    <Center minH="100vh" bg="#191919" color="white">
-      <Box 
+    <Center bg="#191919" color="white">
+      <Box
         p={{ base: 4, sm: 8 }}
-        w={{ base: '90%', sm: 'md' }} 
-        maxW="md" 
+        w={{ base: '90%', sm: 'md' }}
+        maxW="md"
         borderWidth={1}
         borderRadius="lg"
         boxShadow="lg"
