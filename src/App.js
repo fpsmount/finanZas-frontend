@@ -25,14 +25,14 @@ import {
 } from 'react-router-dom';
 import { HamburgerIcon } from '@chakra-ui/icons';
 
-// Importe e crie novos componentes para as rotas
 import Home from './pages/Home';
 import Entradas from './pages/Entradas';
 import Saidas from './pages/Saidas';
 import Relatorios from './pages/Relatorios';
 import Configuracoes from './pages/Configuracoes';
-import LoginPage from './pages/Login'; // Novo componente de login
-import ProtectedRoutes from './ProtectedRoutes'; // Novo componente de rotas protegidas
+import LoginPage from './pages/Login'; 
+import CadastroPage from './pages/Cadastro';
+import ProtectedRoutes from './ProtectedRoutes'
 
 import { AuthProvider, useAuth } from './auth/AuthContext';
 
@@ -155,6 +155,7 @@ function App() {
           <Flex justify="center" align="center" px={8} pb={12}>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/cadastro" element={<CadastroPage />} /> {/* Adicione esta nova rota */}
               <Route element={<ProtectedRoutes />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/entradas" element={<Entradas />} />

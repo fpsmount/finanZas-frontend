@@ -11,62 +11,38 @@ import {
   Heading,
   Center,
   Image,
-  Divider,
-  Link as ChakraLink,
+  Link,
 } from '@chakra-ui/react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
-function LoginPage() {
+function CadastroPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useToast();
-  const { login, loginWithGoogle } = useAuth();
+  const { signup } = useAuth();
   const navigate = useNavigate();
 
-  const handleEmailLogin = async (e) => {
+  const handleCadastro = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password);
+      await signup(email, password);
       toast({
-        title: 'Login bem-sucedido!',
+        title: 'Cadastro bem-sucedido!',
+        description: 'Sua conta foi criada. Faça login para continuar.',
         status: 'success',
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
-      navigate('/');
+      navigate('/login');
     } catch (error) {
       toast({
-        title: 'Erro no login.',
-        description: 'Verifique seu e-mail e senha.',
+        title: 'Erro no cadastro.',
+        description: error.message,
         status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    try {
-      await loginWithGoogle();
-      toast({
-        title: 'Login com Google bem-sucedido!',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-      navigate('/');
-    } catch (error) {
-      toast({
-        title: 'Erro no login com Google.',
-        description: 'Não foi possível autenticar com o Google.',
-        status: 'error',
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
     } finally {
@@ -75,11 +51,11 @@ function LoginPage() {
   };
 
   return (
-    <Center bg="#191919" color="white">
-      <Box
+    <Center minH="100vh" bg="#191919" color="white">
+      <Box 
         p={{ base: 4, sm: 8 }}
-        w={{ base: '90%', sm: 'md' }}
-        maxW="md"
+        w={{ base: '90%', sm: 'md' }} 
+        maxW="md" 
         borderWidth={1}
         borderRadius="lg"
         boxShadow="lg"
@@ -90,9 +66,9 @@ function LoginPage() {
             <Image src="./finanzas_icon.png" boxSize={{ base: "80px", md: "100px" }} alt="FinanZas Icon" />
           </Center>
           <Heading as="h1" size={{ base: 'lg', md: 'xl' }} textAlign="center" mb={4}>
-            FinanZas
+            Criar Nova Conta
           </Heading>
-          <form onSubmit={handleEmailLogin}>
+          <form onSubmit={handleCadastro}>
             <VStack spacing={4}>
               <FormControl>
                 <FormLabel>Email</FormLabel>
@@ -116,27 +92,21 @@ function LoginPage() {
                   _placeholder={{ color: 'whiteAlpha.600' }}
                 />
               </FormControl>
-              <Button type="submit" colorScheme="blue" isLoading={loading} width="full">
-                Entrar
+              <Button type="submit" colorScheme="green" isLoading={loading} width="full">
+                Cadastrar
               </Button>
             </VStack>
           </form>
 
           <Center>
-            <ChakraLink as={RouterLink} to="/cadastro" color="blue.300">
-              Não tem uma conta? Cadastre-se
-            </ChakraLink>
+            <Link as={RouterLink} to="/login" color="whiteAlpha.800" _hover={{ textDecoration: 'underline' }}>
+              Já tem uma conta? Faça Login
+            </Link>
           </Center>
-
-          <Divider orientation="horizontal" my={4} />
-
-          <Button colorScheme="red" onClick={handleGoogleLogin} isLoading={loading} width="full">
-            Entrar com Google
-          </Button>
         </VStack>
       </Box>
     </Center>
   );
 }
 
-export default LoginPage;
+export default CadastroPage;
