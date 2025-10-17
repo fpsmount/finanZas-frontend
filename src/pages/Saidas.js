@@ -24,30 +24,26 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { useAuth } from '../auth/AuthContext';
-
+import { useAuth } from "../auth/AuthContext";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { ptBR } from "date-fns/locale";
 
 const formatInputCurrency = (value) => {
-    if (!value && value !== 0) return '';
-    
-    const numericValue = Number(value);
-    
-    const fixed = numericValue.toFixed(2);
-    
-    const parts = fixed.split('.');
-    
-    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    
-    const decimalPart = parts[1];
-    
-    return `${integerPart},${decimalPart}`;
+  if (!value && value !== 0) return "";
+  const numericValue = Number(value);
+  const fixed = numericValue.toFixed(2);
+  const parts = fixed.split(".");
+  const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const decimalPart = parts[1];
+  return `${integerPart},${decimalPart}`;
 };
 
 function Saidas() {
   const [saidas, setSaidas] = useState([]);
   const [novaSaida, setNovaSaida] = useState({
     descricao: "",
-    valor: "", 
+    valor: "",
     data: "",
     tipo: "variável",
   });
@@ -59,13 +55,15 @@ function Saidas() {
   const cancelRef = useRef();
   const toast = useToast();
   const isMobile = useBreakpointValue({ base: true, md: false });
-  const { currentUser } = useAuth(); 
+  const { currentUser } = useAuth();
 
   const fetchSaidas = async () => {
     if (!currentUser) return;
     try {
       const userId = currentUser.uid;
-      const response = await axios.get(`https://finanzas-backend-rmik.onrender.com/api/saidas?userId=${userId}`);
+      const response = await axios.get(
+        `https://finanzas-backend-rmik.onrender.com/api/saidas?userId=${userId}`
+      );
       setSaidas(response.data);
     } catch (error) {
       console.error("Erro ao buscar saídas:", error);
@@ -86,16 +84,14 @@ function Saidas() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === 'valor') {
-        const digits = value.replace(/\D/g, ''); 
-
-        const newNumericValue = digits === '' ? '' : (Number(digits) / 100);
-        
-        setNovaSaida({
-            ...novaSaida,
-            valor: newNumericValue, 
-        });
-        return;
+    if (name === "valor") {
+      const digits = value.replace(/\D/g, "");
+      const newNumericValue = digits === "" ? "" : Number(digits) / 100;
+      setNovaSaida({
+        ...novaSaida,
+        valor: newNumericValue,
+      });
+      return;
     }
 
     setNovaSaida({
@@ -108,25 +104,36 @@ function Saidas() {
     if (!currentUser) return;
     const userId = currentUser.uid;
 
-    if (novaSaida.valor === '' || isNaN(novaSaida.valor) || Number(novaSaida.valor) <= 0) {
-        toast({ title: "O valor da saída deve ser maior que zero.", status: "error", duration: 3000 });
-        return;
+    if (novaSaida.valor === "" || isNaN(novaSaida.valor) || Number(novaSaida.valor) <= 0) {
+      toast({
+        title: "O valor da saída deve ser maior que zero.",
+        status: "error",
+        duration: 3000,
+      });
+      return;
     }
-    
-    const payload = { 
-      ...novaSaida, 
+
+    const payload = {
+      ...novaSaida,
       userId,
-      valor: Number(novaSaida.valor), 
+      valor: Number(novaSaida.valor),
     };
 
     try {
       if (saidaParaEditar) {
-        await axios.put(`https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaEditar.id}?userId=${userId}`, payload);
+        await axios.put(
+          `https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaEditar.id}?userId=${userId}`,
+          payload
+        );
         toast({ title: "Saída editada com sucesso!", status: "success", duration: 3000 });
       } else {
-        await axios.post(`https://finanzas-backend-rmik.onrender.com/api/saidas?userId=${userId}`, payload);
+        await axios.post(
+          `https://finanzas-backend-rmik.onrender.com/api/saidas?userId=${userId}`,
+          payload
+        );
         toast({ title: "Saída adicionada com sucesso!", status: "success", duration: 3000 });
       }
+
       setNovaSaida({ descricao: "", valor: "", data: "", tipo: "variável" });
       setMostrarFormulario(false);
       setSaidaParaEditar(null);
@@ -155,7 +162,9 @@ function Saidas() {
     if (!currentUser) return;
     const userId = currentUser.uid;
     try {
-      await axios.delete(`https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaExcluir}?userId=${userId}`);
+      await axios.delete(
+        `https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaExcluir}?userId=${userId}`
+      );
       toast({ title: "Saída excluída com sucesso.", status: "info", duration: 3000 });
       setSaidaParaExcluir(null);
       onClose();
@@ -166,12 +175,8 @@ function Saidas() {
     }
   };
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
-  };
+  const formatCurrency = (value) =>
+    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -179,13 +184,8 @@ function Saidas() {
     return `${day}/${month}/${year}`;
   };
 
-  const formatType = (typeString) => {
-    if(typeString === 'variável'){
-      return 'Variável';
-    } else {
-      return 'Fixa'
-    }
-  }
+  const formatType = (typeString) =>
+    typeString === "variável" ? "Variável" : "Fixa";
 
   return (
     <Box p={6}>
@@ -193,17 +193,28 @@ function Saidas() {
         <Text fontSize="2xl" fontWeight="bold" color="white">
           Saídas
         </Text>
-        <Button colorScheme="red" onClick={() => {
-          setMostrarFormulario(!mostrarFormulario);
-          setNovaSaida({ descricao: "", valor: "", data: "", tipo: "variável" });
-          setSaidaParaEditar(null);
-        }}>
+        <Button
+          colorScheme="red"
+          onClick={() => {
+            setMostrarFormulario(!mostrarFormulario);
+            setNovaSaida({ descricao: "", valor: "", data: "", tipo: "variável" });
+            setSaidaParaEditar(null);
+          }}
+        >
           {mostrarFormulario ? "Cancelar" : "Nova Saída"}
         </Button>
       </HStack>
 
       {mostrarFormulario && (
-        <VStack spacing={3} p={4} borderWidth="1px" borderRadius="lg" mb={6} align="start" borderColor="whiteAlpha.400">
+        <VStack
+          spacing={3}
+          p={4}
+          borderWidth="1px"
+          borderRadius="lg"
+          mb={6}
+          align="start"
+          borderColor="whiteAlpha.400"
+        >
           <Input
             placeholder="Descrição"
             name="descricao"
@@ -221,15 +232,29 @@ function Saidas() {
             color="whiteAlpha.900"
             _placeholder={{ color: "whiteAlpha.600" }}
           />
-          <Input
-            placeholder="Data"
-            name="data"
-            type="date"
-            value={novaSaida.data}
-            onChange={handleChange}
-            color="whiteAlpha.900"
-            _placeholder={{ color: "whiteAlpha.600" }}
+
+          {/* --- DatePicker no mesmo estilo do Entradas --- */}
+          <DatePicker
+            selected={novaSaida.data ? new Date(novaSaida.data) : null}
+            onChange={(date) =>
+              setNovaSaida({
+                ...novaSaida,
+                data: date ? date.toISOString().split("T")[0] : "",
+              })
+            }
+            dateFormat="dd/MM/yyyy"
+            locale={ptBR}
+            placeholderText="Selecione uma data"
+            customInput={
+              <Input
+                color="whiteAlpha.900"
+                _placeholder={{ color: "whiteAlpha.600" }}
+              />
+            }
+            calendarStartDay={1}
           />
+          {/* -------------------------------------------- */}
+
           <Select
             name="tipo"
             value={novaSaida.tipo}
@@ -239,6 +264,7 @@ function Saidas() {
             <option value="fixa">Fixa</option>
             <option value="variável">Variável</option>
           </Select>
+
           <Button colorScheme="blue" onClick={adicionarSaida}>
             {saidaParaEditar ? "Salvar Edição" : "Adicionar"}
           </Button>
@@ -319,21 +345,13 @@ function Saidas() {
         </Box>
       )}
 
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
+      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Confirmar Exclusão
             </AlertDialogHeader>
-
-            <AlertDialogBody>
-              Tem certeza que deseja excluir esta saída?
-            </AlertDialogBody>
-
+            <AlertDialogBody>Tem certeza que deseja excluir esta saída?</AlertDialogBody>
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose}>
                 Cancelar

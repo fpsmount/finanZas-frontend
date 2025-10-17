@@ -25,6 +25,10 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useAuth } from '../auth/AuthContext';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { ptBR } from "date-fns/locale";
+
 
 const formatInputCurrency = (value) => {
     if (!value && value !== 0) return '';
@@ -214,15 +218,27 @@ function Entradas() {
             color="whiteAlpha.900"
             _placeholder={{ color: "whiteAlpha.600" }}
           />
-          <Input
-            placeholder="Data"
-            name="data"
-            type="date"
-            value={novaEntrada.data}
-            onChange={handleChange}
-            color="whiteAlpha.900"
-            _placeholder={{ color: "whiteAlpha.600" }}
-          />
+          <Box w="100%">
+  <DatePicker
+    selected={novaEntrada.data ? new Date(novaEntrada.data) : null}
+    onChange={(date) =>
+      setNovaEntrada({
+        ...novaEntrada,
+        data: date ? date.toISOString().split("T")[0] : "",
+      })
+    }
+    dateFormat="dd/MM/yyyy"
+    locale={ptBR}
+    placeholderText="Selecione uma data"
+    customInput={
+      <Input
+        color="whiteAlpha.900"
+        _placeholder={{ color: "whiteAlpha.600" }}
+      />
+    }
+    calendarStartDay={1}
+  />
+</Box>
           <HStack>
             <Text color="whiteAlpha.900">Recebimento de Salário?</Text>
             <Switch
