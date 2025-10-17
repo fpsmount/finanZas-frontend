@@ -42,9 +42,9 @@ function Relatorios() {
     if (!currentUser) return;
     try {
       const userId = currentUser.uid;
-      const entradasResponse = await axios.get(`https://finanzas-backend-rmik.onrender.com/api/entradas?userId=${userId}`);
+      const entradasResponse = await axios.get(`http://localhost:8080/api/entradas?userId=${userId}`);
       setEntradas(entradasResponse.data);
-      const saidasResponse = await axios.get(`https://finanzas-backend-rmik.onrender.com/api/saidas?userId=${userId}`);
+      const saidasResponse = await axios.get(`http://localhost:8080/api/saidas?userId=${userId}`);
       setSaidas(saidasResponse.data);
     } catch (error) {
       console.error("Erro ao buscar dados dos relatórios:", error);

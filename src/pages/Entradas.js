@@ -26,11 +26,28 @@ import {
 import axios from "axios";
 import { useAuth } from '../auth/AuthContext';
 
+const formatInputCurrency = (value) => {
+    if (!value && value !== 0) return '';
+    
+    const numericValue = Number(value);
+    
+    const fixed = numericValue.toFixed(2);
+    
+    const parts = fixed.split('.');
+    
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    
+    const decimalPart = parts[1];
+    
+    return `${integerPart},${decimalPart}`;
+};
+
+
 function Entradas() {
   const [entradas, setEntradas] = useState([]);
   const [novaEntrada, setNovaEntrada] = useState({
     descricao: "",
-    valor: "",
+    valor: "", 
     data: "",
     salario: false,
   });
@@ -68,6 +85,19 @@ function Entradas() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    if (name === 'valor') {
+        const digits = value.replace(/\D/g, ''); 
+
+        const newNumericValue = digits === '' ? '' : (Number(digits) / 100);
+        
+        setNovaEntrada({
+            ...novaEntrada,
+            valor: newNumericValue, 
+        });
+        return;
+    }
+
     setNovaEntrada({
       ...novaEntrada,
       [name]: type === "checkbox" ? checked : value,
@@ -77,12 +107,24 @@ function Entradas() {
   const adicionarEntrada = async () => {
     if (!currentUser) return;
     const userId = currentUser.uid;
+
+    if (novaEntrada.valor === '' || isNaN(novaEntrada.valor) || Number(novaEntrada.valor) <= 0) {
+        toast({ title: "O valor da entrada deve ser maior que zero.", status: "error", duration: 3000 });
+        return;
+    }
+    
+    const payload = { 
+      ...novaEntrada, 
+      userId,
+      valor: Number(novaEntrada.valor), 
+    };
+
     try {
       if (entradaParaEditar) {
-        await axios.put(`https://finanzas-backend-rmik.onrender.com/api/entradas/${entradaParaEditar.id}?userId=${userId}`, novaEntrada);
+        await axios.put(`https://finanzas-backend-rmik.onrender.com/api/entradas/${entradaParaEditar.id}?userId=${userId}`, payload);
         toast({ title: "Entrada editada com sucesso!", status: "success", duration: 3000 });
       } else {
-        await axios.post(`https://finanzas-backend-rmik.onrender.com/api/entradas?userId=${userId}`, { ...novaEntrada, userId });
+        await axios.post(`https://finanzas-backend-rmik.onrender.com/api/entradas?userId=${userId}`, payload);
         toast({ title: "Entrada adicionada com sucesso!", status: "success", duration: 3000 });
       }
       setNovaEntrada({ descricao: "", valor: "", data: "", salario: false });
@@ -96,7 +138,10 @@ function Entradas() {
   };
 
   const iniciarEdicao = (entrada) => {
-    setNovaEntrada(entrada);
+    setNovaEntrada({
+      ...entrada,
+      valor: Number(entrada.valor),
+    });
     setEntradaParaEditar(entrada);
     setMostrarFormulario(true);
   };
@@ -140,7 +185,12 @@ function Entradas() {
         <Text fontSize="2xl" fontWeight="bold" color="white">
           Entradas
         </Text>
-        <Button colorScheme="green" onClick={() => setMostrarFormulario(!mostrarFormulario)}>
+        <Button colorScheme="green" onClick={() => {
+          setMostrarFormulario(!mostrarFormulario);
+          // Limpa o formulário ao abrir ou fechar
+          setNovaEntrada({ descricao: "", valor: "", data: "", salario: false });
+          setEntradaParaEditar(null);
+        }}>
           {mostrarFormulario ? "Cancelar" : "Nova Entrada"}
         </Button>
       </HStack>
@@ -156,10 +206,10 @@ function Entradas() {
             _placeholder={{ color: "whiteAlpha.600" }}
           />
           <Input
-            placeholder="Valor"
+            placeholder="Valor (R$)"
             name="valor"
-            type="number"
-            value={novaEntrada.valor}
+            type="text" 
+            value={formatInputCurrency(novaEntrada.valor)} 
             onChange={handleChange}
             color="whiteAlpha.900"
             _placeholder={{ color: "whiteAlpha.600" }}

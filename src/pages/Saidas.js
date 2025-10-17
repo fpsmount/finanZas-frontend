@@ -26,11 +26,28 @@ import {
 import axios from "axios";
 import { useAuth } from '../auth/AuthContext';
 
+
+const formatInputCurrency = (value) => {
+    if (!value && value !== 0) return '';
+    
+    const numericValue = Number(value);
+    
+    const fixed = numericValue.toFixed(2);
+    
+    const parts = fixed.split('.');
+    
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    
+    const decimalPart = parts[1];
+    
+    return `${integerPart},${decimalPart}`;
+};
+
 function Saidas() {
   const [saidas, setSaidas] = useState([]);
   const [novaSaida, setNovaSaida] = useState({
     descricao: "",
-    valor: "",
+    valor: "", 
     data: "",
     tipo: "variável",
   });
@@ -68,6 +85,19 @@ function Saidas() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'valor') {
+        const digits = value.replace(/\D/g, ''); 
+
+        const newNumericValue = digits === '' ? '' : (Number(digits) / 100);
+        
+        setNovaSaida({
+            ...novaSaida,
+            valor: newNumericValue, 
+        });
+        return;
+    }
+
     setNovaSaida({
       ...novaSaida,
       [name]: value,
@@ -77,12 +107,24 @@ function Saidas() {
   const adicionarSaida = async () => {
     if (!currentUser) return;
     const userId = currentUser.uid;
+
+    if (novaSaida.valor === '' || isNaN(novaSaida.valor) || Number(novaSaida.valor) <= 0) {
+        toast({ title: "O valor da saída deve ser maior que zero.", status: "error", duration: 3000 });
+        return;
+    }
+    
+    const payload = { 
+      ...novaSaida, 
+      userId,
+      valor: Number(novaSaida.valor), 
+    };
+
     try {
       if (saidaParaEditar) {
-        await axios.put(`https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaEditar.id}?userId=${userId}`, novaSaida);
+        await axios.put(`https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaEditar.id}?userId=${userId}`, payload);
         toast({ title: "Saída editada com sucesso!", status: "success", duration: 3000 });
       } else {
-        await axios.post(`https://finanzas-backend-rmik.onrender.com/api/saidas?userId=${userId}`, { ...novaSaida, userId });
+        await axios.post(`https://finanzas-backend-rmik.onrender.com/api/saidas?userId=${userId}`, payload);
         toast({ title: "Saída adicionada com sucesso!", status: "success", duration: 3000 });
       }
       setNovaSaida({ descricao: "", valor: "", data: "", tipo: "variável" });
@@ -96,7 +138,10 @@ function Saidas() {
   };
 
   const iniciarEdicao = (saida) => {
-    setNovaSaida(saida);
+    setNovaSaida({
+      ...saida,
+      valor: Number(saida.valor),
+    });
     setSaidaParaEditar(saida);
     setMostrarFormulario(true);
   };
@@ -135,7 +180,7 @@ function Saidas() {
   };
 
   const formatType = (typeString) => {
-    if(typeString == 'variável'){
+    if(typeString === 'variável'){
       return 'Variável';
     } else {
       return 'Fixa'
@@ -148,7 +193,11 @@ function Saidas() {
         <Text fontSize="2xl" fontWeight="bold" color="white">
           Saídas
         </Text>
-        <Button colorScheme="red" onClick={() => setMostrarFormulario(!mostrarFormulario)}>
+        <Button colorScheme="red" onClick={() => {
+          setMostrarFormulario(!mostrarFormulario);
+          setNovaSaida({ descricao: "", valor: "", data: "", tipo: "variável" });
+          setSaidaParaEditar(null);
+        }}>
           {mostrarFormulario ? "Cancelar" : "Nova Saída"}
         </Button>
       </HStack>
@@ -164,10 +213,10 @@ function Saidas() {
             _placeholder={{ color: "whiteAlpha.600" }}
           />
           <Input
-            placeholder="Valor"
+            placeholder="Valor (R$)"
             name="valor"
-            type="number"
-            value={novaSaida.valor}
+            type="text"
+            value={formatInputCurrency(novaSaida.valor)}
             onChange={handleChange}
             color="whiteAlpha.900"
             _placeholder={{ color: "whiteAlpha.600" }}

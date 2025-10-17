@@ -155,7 +155,7 @@ function App() {
           <Flex justify="center" align="center" px={8} pb={12}>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/cadastro" element={<CadastroPage />} /> {/* Adicione esta nova rota */}
+              <Route path="/cadastro" element={<CadastroPage />} />
               <Route element={<ProtectedRoutes />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/entradas" element={<Entradas />} />
