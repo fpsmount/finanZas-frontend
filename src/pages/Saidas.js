@@ -196,7 +196,7 @@ function Saidas() {
     typeString === "variável" ? "Variável" : "Fixa";
 
   return (
-    <Box p={6}>
+    <Box p={{ base: 4, md: 6 }}>
       <HStack justify="space-between" mb={4}>
         <Text fontSize="2xl" fontWeight="bold" color="white">
           Saídas
@@ -215,8 +215,8 @@ function Saidas() {
 
       {mostrarFormulario && (
         <VStack
-          spacing={3}
-          p={4}
+          spacing={4}
+          p={{ base: 4, md: 5 }}
           borderWidth="1px"
           borderRadius="lg"
           mb={6}

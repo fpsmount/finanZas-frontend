@@ -192,7 +192,7 @@ function Entradas() {
   };
 
   return (
-    <Box p={6}>
+    <Box p={{ base: 4, md: 6 }}>
       <HStack justify="space-between" mb={4}>
         <Text fontSize="2xl" fontWeight="bold" color="white">
           Entradas
@@ -207,7 +207,7 @@ function Entradas() {
       </HStack>
 
       {mostrarFormulario && (
-        <VStack spacing={3} p={4} borderWidth="1px" borderRadius="lg" mb={6} align="start" borderColor="whiteAlpha.400">
+        <VStack spacing={4} p={{ base: 4, md: 5 }} borderWidth="1px" borderRadius="lg" mb={6} align="start" borderColor="whiteAlpha.400">
           <Input
             placeholder="Descrição"
             name="descricao"
