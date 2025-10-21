@@ -70,7 +70,15 @@ function Entradas() {
     try {
       const userId = currentUser.uid;
       const response = await axios.get(`http://localhost:8080/api/entradas?userId=${userId}`);
-      setEntradas(response.data);
+      
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      const entradasDoMes = response.data.filter(entrada => {
+        const dataEntrada = new Date(entrada.data);
+        return dataEntrada.getMonth() === currentMonth && dataEntrada.getFullYear() === currentYear;
+      });
+      setEntradas(entradasDoMes);
     } catch (error) {
       console.error("Erro ao buscar entradas:", error);
       toast({

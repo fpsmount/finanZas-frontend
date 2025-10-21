@@ -64,7 +64,15 @@ function Saidas() {
       const response = await axios.get(
         `http://localhost:8080/api/saidas?userId=${userId}`
       );
-      setSaidas(response.data);
+
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      const saidasDoMes = response.data.filter(saida => {
+        const dataSaida = new Date(saida.data);
+        return dataSaida.getMonth() === currentMonth && dataSaida.getFullYear() === currentYear;
+      });
+      setSaidas(saidasDoMes);
     } catch (error) {
       console.error("Erro ao buscar saídas:", error);
       toast({
