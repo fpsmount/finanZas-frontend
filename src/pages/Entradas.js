@@ -69,7 +69,7 @@ function Entradas() {
     if (!currentUser) return;
     try {
       const userId = currentUser.uid;
-      const response = await axios.get(`https://finanzas-backend-rmik.onrender.com/api/entradas?userId=${userId}`);
+      const response = await axios.get(`http://localhost:8080/api/entradas?userId=${userId}`);
       setEntradas(response.data);
     } catch (error) {
       console.error("Erro ao buscar entradas:", error);
@@ -125,10 +125,10 @@ function Entradas() {
 
     try {
       if (entradaParaEditar) {
-        await axios.put(`https://finanzas-backend-rmik.onrender.com/api/entradas/${entradaParaEditar.id}?userId=${userId}`, payload);
+        await axios.put(`http://localhost:8080/api/entradas/${entradaParaEditar.id}?userId=${userId}`, payload);
         toast({ title: "Entrada editada com sucesso!", status: "success", duration: 3000 });
       } else {
-        await axios.post(`https://finanzas-backend-rmik.onrender.com/api/entradas?userId=${userId}`, payload);
+        await axios.post(`http://localhost:8080/api/entradas?userId=${userId}`, payload);
         toast({ title: "Entrada adicionada com sucesso!", status: "success", duration: 3000 });
       }
       setNovaEntrada({ descricao: "", valor: "", data: "", salario: false });
@@ -159,7 +159,7 @@ function Entradas() {
     if (!currentUser) return;
     const userId = currentUser.uid;
     try {
-      await axios.delete(`https://finanzas-backend-rmik.onrender.com/api/entradas/${entradaParaExcluir}?userId=${userId}`);
+      await axios.delete(`http://localhost:8080/api/entradas/${entradaParaExcluir}?userId=${userId}`);
       toast({ title: "Entrada excluída com sucesso.", status: "info", duration: 3000 });
       setEntradaParaExcluir(null);
       onClose();
@@ -191,7 +191,6 @@ function Entradas() {
         </Text>
         <Button colorScheme="green" onClick={() => {
           setMostrarFormulario(!mostrarFormulario);
-          // Limpa o formulário ao abrir ou fechar
           setNovaEntrada({ descricao: "", valor: "", data: "", salario: false });
           setEntradaParaEditar(null);
         }}>
