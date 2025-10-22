@@ -141,7 +141,7 @@ function Dashboard() {
   const cores = ["#2ecc71", "#e74c3c"];
 
   return (
-    <Box p={{ base: 4, md: 6 }}>
+    <Box p={{ base: 4, md: 8 }}>
       <Box maxW="1200px" mx="auto">
 
         <WelcomeCard />

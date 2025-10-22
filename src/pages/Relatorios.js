@@ -86,9 +86,9 @@ function Relatorios() {
   const COLORS = ["#3182CE", "#E53E3E"]; 
 
   return (
-    <Box p={6}>
+    <Box p={{ base: 4, md: 6 }}>
 
-      <SimpleGrid columns={[1, 3]} spacing={6} mb={8}>
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6} mb={8}>
         <Card bg="#2D2D2D">
           <CardBody>
             <Stat>
@@ -117,7 +117,7 @@ function Relatorios() {
         </Card>
       </SimpleGrid>
 
-      <SimpleGrid columns={[1, 2]} spacing={6}>
+      <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
         <Card bg="#2D2D2D">
           <CardBody>
             <Text fontSize="lg" mb={4} fontWeight="bold" color="white">

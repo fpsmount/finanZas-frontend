@@ -64,7 +64,15 @@ function Saidas() {
       const response = await axios.get(
         `http://localhost:8080/api/saidas?userId=${userId}`
       );
-      setSaidas(response.data);
+
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      const saidasDoMes = response.data.filter(saida => {
+        const dataSaida = new Date(saida.data);
+        return dataSaida.getMonth() === currentMonth && dataSaida.getFullYear() === currentYear;
+      });
+      setSaidas(saidasDoMes);
     } catch (error) {
       console.error("Erro ao buscar saídas:", error);
       toast({
@@ -188,7 +196,7 @@ function Saidas() {
     typeString === "variável" ? "Variável" : "Fixa";
 
   return (
-    <Box p={6}>
+    <Box p={{ base: 4, md: 6 }}>
       <HStack justify="space-between" mb={4}>
         <Text fontSize="2xl" fontWeight="bold" color="white">
           Saídas
@@ -207,8 +215,8 @@ function Saidas() {
 
       {mostrarFormulario && (
         <VStack
-          spacing={3}
-          p={4}
+          spacing={4}
+          p={{ base: 4, md: 5 }}
           borderWidth="1px"
           borderRadius="lg"
           mb={6}

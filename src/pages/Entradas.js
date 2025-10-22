@@ -70,7 +70,15 @@ function Entradas() {
     try {
       const userId = currentUser.uid;
       const response = await axios.get(`http://localhost:8080/api/entradas?userId=${userId}`);
-      setEntradas(response.data);
+      
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      const entradasDoMes = response.data.filter(entrada => {
+        const dataEntrada = new Date(entrada.data);
+        return dataEntrada.getMonth() === currentMonth && dataEntrada.getFullYear() === currentYear;
+      });
+      setEntradas(entradasDoMes);
     } catch (error) {
       console.error("Erro ao buscar entradas:", error);
       toast({
@@ -184,7 +192,7 @@ function Entradas() {
   };
 
   return (
-    <Box p={6}>
+    <Box p={{ base: 4, md: 6 }}>
       <HStack justify="space-between" mb={4}>
         <Text fontSize="2xl" fontWeight="bold" color="white">
           Entradas
@@ -199,7 +207,7 @@ function Entradas() {
       </HStack>
 
       {mostrarFormulario && (
-        <VStack spacing={3} p={4} borderWidth="1px" borderRadius="lg" mb={6} align="start" borderColor="whiteAlpha.400">
+        <VStack spacing={4} p={{ base: 4, md: 5 }} borderWidth="1px" borderRadius="lg" mb={6} align="start" borderColor="whiteAlpha.400">
           <Input
             placeholder="Descrição"
             name="descricao"
