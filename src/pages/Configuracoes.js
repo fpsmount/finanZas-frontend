@@ -17,7 +17,12 @@ import {
   useColorMode,
   HStack,
   Link,
+  useClipboard, 
+  InputGroup,
+  InputRightElement,
 } from "@chakra-ui/react";
+import { useAuth } from '../auth/AuthContext';
+
 
 function Configuracoes() {
   const [nome, setNome] = useState("");
@@ -25,6 +30,13 @@ function Configuracoes() {
   const [senha, setSenha] = useState("");
   const toast = useToast();
   const { colorMode, toggleColorMode } = useColorMode();
+  
+  const { currentUser } = useAuth();
+  
+  const whatsappId = currentUser ? currentUser.uid : "Faça login para ver seu ID";
+  
+  const { onCopy, hasCopied } = useClipboard(whatsappId);
+  
 
   const handleSalvar = () => {
     toast({
@@ -52,6 +64,42 @@ function Configuracoes() {
       <Text fontSize="3xl" fontWeight="bold" mb={6} color="white">
         Configurações
       </Text>
+      
+      {currentUser && (
+        <Card maxW="600px" shadow="md" bg="#2D2D2D" mb={8}>
+          <CardHeader>
+            <Heading size="md" color="white">
+              Conexão com o WhatsApp Bot
+            </Heading>
+          </CardHeader>
+          <CardBody>
+            <VStack spacing={4} align="stretch">
+              <Text color="whiteAlpha.700">
+                Use este ID no WhatsApp com o comando: 
+                <Text as="span" fontWeight="bold" color="blue.300"> CONECTAR {'{SEU ID}'}</Text>
+              </Text>
+              <FormControl>
+                <FormLabel color="whiteAlpha.900">Seu ID de Usuário (UID)</FormLabel>
+                <InputGroup size="md">
+                  <Input
+                    pr="4.5rem"
+                    type="text"
+                    value={whatsappId}
+                    isReadOnly
+                    color="whiteAlpha.900"
+                    bg="blackAlpha.300"
+                  />
+                  <InputRightElement width="4.5rem">
+                    <Button h="1.75rem" size="sm" onClick={onCopy} colorScheme={hasCopied ? "green" : "blue"}>
+                      {hasCopied ? "Copiado!" : "Copiar"}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+            </VStack>
+          </CardBody>
+        </Card>
+      )}
 
       <Card maxW="600px" shadow="md" bg="#2D2D2D" mb={8}>
         <CardHeader>

@@ -62,7 +62,7 @@ function Saidas() {
     try {
       const userId = currentUser.uid;
       const response = await axios.get(
-        `https://finanzas-backend-rmik.onrender.com/api/saidas?userId=${userId}`
+        `http://localhost:8080/api/saidas?userId=${userId}`
       );
       setSaidas(response.data);
     } catch (error) {
@@ -122,13 +122,13 @@ function Saidas() {
     try {
       if (saidaParaEditar) {
         await axios.put(
-          `https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaEditar.id}?userId=${userId}`,
+          `http://localhost:8080/api/saidas/${saidaParaEditar.id}?userId=${userId}`,
           payload
         );
         toast({ title: "Saída editada com sucesso!", status: "success", duration: 3000 });
       } else {
         await axios.post(
-          `https://finanzas-backend-rmik.onrender.com/api/saidas?userId=${userId}`,
+          `http://localhost:8080/api/saidas?userId=${userId}`,
           payload
         );
         toast({ title: "Saída adicionada com sucesso!", status: "success", duration: 3000 });
@@ -163,7 +163,7 @@ function Saidas() {
     const userId = currentUser.uid;
     try {
       await axios.delete(
-        `https://finanzas-backend-rmik.onrender.com/api/saidas/${saidaParaExcluir}?userId=${userId}`
+        `http://localhost:8080/api/saidas/${saidaParaExcluir}?userId=${userId}`
       );
       toast({ title: "Saída excluída com sucesso.", status: "info", duration: 3000 });
       setSaidaParaExcluir(null);
@@ -233,7 +233,6 @@ function Saidas() {
             _placeholder={{ color: "whiteAlpha.600" }}
           />
 
-          {/* --- DatePicker no mesmo estilo do Entradas --- */}
           <DatePicker
             selected={novaSaida.data ? new Date(novaSaida.data) : null}
             onChange={(date) =>
@@ -253,7 +252,6 @@ function Saidas() {
             }
             calendarStartDay={1}
           />
-          {/* -------------------------------------------- */}
 
           <Select
             name="tipo"
