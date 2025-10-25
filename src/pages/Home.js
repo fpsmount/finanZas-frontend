@@ -46,6 +46,12 @@ const formatCurrency = (value) => {
   }).format(value);
 };
 
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const [year, month, day] = dateString.split("T")[0].split("-");
+  return `${day}/${month}/${year}`;
+};
+
 const WelcomeCard = () => (
   <Card bg="#2D2D2D" p={6} mb={10}>
     <VStack spacing={4} align="center">
@@ -88,7 +94,7 @@ const MiniRelatorioModal = ({ isOpen, onClose, data, title }) => (
                 <Tr key={item.id}>
                   <Td color="whiteAlpha.900">{item.descricao}</Td>
                   <Td color="whiteAlpha.900" isNumeric>{formatCurrency(item.valor)}</Td>
-                  <Td color="whiteAlpha.900">{item.data}</Td>
+                  <Td color="whiteAlpha.900">{formatDate(item.data)}</Td>
                 </Tr>
               ))}
             </Tbody>
