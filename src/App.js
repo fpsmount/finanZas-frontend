@@ -167,6 +167,15 @@ function App() {
           </Flex>
         </AuthProvider>
       </Router>
+      
+      <a 
+        href="https://wa.me/5511960428846" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="whatsapp-float"
+      >
+        <i className="fab fa-whatsapp whatsapp-icon"></i>
+      </a>
     </Box>
   );
 }
