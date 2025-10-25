@@ -36,10 +36,14 @@ import ProtectedRoutes from './ProtectedRoutes'
 
 import { AuthProvider, useAuth } from './auth/AuthContext';
 
+// Importação do novo componente Metas
+import Metas from './pages/Metas'; 
+
 const menuItems = [
   { name: 'Home', path: '/' },
   { name: 'Entradas', path: '/entradas' },
   { name: 'Saídas', path: '/saidas' },
+  { name: 'Metas', path: '/metas' }, // Novo item de menu para Metas
   { name: 'Relatórios', path: '/relatorios' },
   { name: 'Configurações', path: '/configuracoes' },
 ];
@@ -160,6 +164,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/entradas" element={<Entradas />} />
                 <Route path="/saidas" element={<Saidas />} />
+                <Route path="/metas" element={<Metas />} /> {/* Nova Rota para Metas Financeiras */}
                 <Route path="/relatorios" element={<Relatorios />} />
                 <Route path="/configuracoes" element={<Configuracoes />} />
               </Route>
@@ -167,15 +172,6 @@ function App() {
           </Flex>
         </AuthProvider>
       </Router>
-      
-      <a 
-        href="https://wa.me/5511960428846" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="whatsapp-float"
-      >
-        <i className="fab fa-whatsapp whatsapp-icon"></i>
-      </a>
     </Box>
   );
 }
