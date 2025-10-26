@@ -164,7 +164,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/entradas" element={<Entradas />} />
                 <Route path="/saidas" element={<Saidas />} />
-                <Route path="/metas" element={<Metas />} /> {/* Nova Rota para Metas Financeiras */}
+                <Route path="/metas" element={<Metas />} />
                 <Route path="/relatorios" element={<Relatorios />} />
                 <Route path="/configuracoes" element={<Configuracoes />} />
               </Route>
@@ -172,6 +172,13 @@ function App() {
           </Flex>
         </AuthProvider>
       </Router>
+      <a
+        href="https://wa.me/5511960428846" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="whatsapp-float">
+        <i className="fab fa-whatsapp whatsapp-icon"></i>
+      </a>
     </Box>
   );
 }
