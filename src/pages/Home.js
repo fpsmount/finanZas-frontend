@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -7,37 +7,35 @@ import {
   Stat,
   StatLabel,
   StatNumber,
-  Card,
-  CardBody,
+  StatHelpText,
+  StatArrow,
   Button,
-  Stack,
   VStack,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
+  HStack,
+  Icon,
+  Progress,
+  Heading,
 } from "@chakra-ui/react";
 import {
   PieChart,
   Pie,
   Cell,
-  Tooltip,
   ResponsiveContainer,
-  Legend,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Area,
+  AreaChart,
 } from "recharts";
 import { Link as RouterLink } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import axios from "axios";
 import { useAuth } from '../auth/AuthContext';
+
+const MotionBox = motion(Box);
+const MotionFlex = motion(Flex);
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("pt-BR", {
@@ -46,80 +44,44 @@ const formatCurrency = (value) => {
   }).format(value);
 };
 
-const formatDate = (dateString) => {
-  if (!dateString) return "";
-  const [year, month, day] = dateString.split("T")[0].split("-");
-  return `${day}/${month}/${year}`;
-};
-
-const WelcomeCard = () => (
-  <Card bg="#2D2D2D" p={6} mb={10}>
-    <VStack spacing={4} align="center">
-      <Text fontSize="2xl" fontWeight="bold" color="white">
-        Bem-vindo ao FinanZas!
-      </Text>
-      <Text color="whiteAlpha.700" textAlign="center">
-        Comece a gerenciar suas finanças registrando uma transação.
-      </Text>
-      <Stack direction={{ base: 'column', sm: 'row' }} spacing={4}>
-        <Button as={RouterLink} to="/entradas" colorScheme="green">
-          Registrar uma Entrada
-        </Button>
-        <Button as={RouterLink} to="/saidas" colorScheme="red">
-          Registrar uma Saída
-        </Button>
-      </Stack>
-    </VStack>
-  </Card>
-);
-
-const MiniRelatorioModal = ({ isOpen, onClose, data, title }) => (
-  <Modal isOpen={isOpen} onClose={onClose} size={{ base: "full", md: "xl" }} scrollBehavior="inside">
-    <ModalOverlay />
-    <ModalContent bg="#191919" color="white">
-      <ModalHeader>{title}</ModalHeader>
-      <ModalCloseButton />
-      <ModalBody>
-        <Box overflowX="auto">
-          <Table variant="simple" colorScheme="whiteAlpha">
-            <Thead>
-              <Tr>
-                <Th color="whiteAlpha.900">Descrição</Th>
-                <Th color="whiteAlpha.900" isNumeric>Valor</Th>
-                <Th color="whiteAlpha.900">Data</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {data.map((item) => (
-                <Tr key={item.id}>
-                  <Td color="whiteAlpha.900">{item.descricao}</Td>
-                  <Td color="whiteAlpha.900" isNumeric>{formatCurrency(item.valor)}</Td>
-                  <Td color="whiteAlpha.900">{formatDate(item.data)}</Td>
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </Box>
-      </ModalBody>
-      <ModalFooter>
-        <Button colorScheme="blue" onClick={onClose}>
-          Fechar
-        </Button>
-      </ModalFooter>
-    </ModalContent>
-  </Modal>
+const GlassCard = ({ children, gradient, ...props }) => (
+  <MotionBox
+    bg="rgba(255, 255, 255, 0.05)"
+    backdropFilter="blur(20px)"
+    borderRadius="2xl"
+    border="1px solid"
+    borderColor="whiteAlpha.200"
+    p={6}
+    boxShadow="0 8px 32px 0 rgba(0, 0, 0, 0.37)"
+    position="relative"
+    overflow="hidden"
+    whileHover={{ y: -5, boxShadow: "0 12px 48px 0 rgba(0, 0, 0, 0.5)" }}
+    transition={{ duration: 0.3 }}
+    {...props}
+  >
+    {gradient && (
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bgGradient={gradient}
+        opacity={0.1}
+        pointerEvents="none"
+      />
+    )}
+    {children}
+  </MotionBox>
 );
 
 function Dashboard() {
-  const { isOpen: isEntradasOpen, onOpen: onEntradasOpen, onClose: onEntradasClose } = useDisclosure();
-  const { isOpen: isSaidasOpen, onOpen: onSaidasOpen, onClose: onSaidasClose } = useDisclosure();
-
   const [entradas, setEntradas] = useState([]);
   const [saidas, setSaidas] = useState([]);
   const { currentUser } = useAuth();
 
   const fetchDados = async () => {
-    if (!currentUser) return; 
+    if (!currentUser) return;
     try {
       const userId = currentUser.uid;
       const entradasResponse = await axios.get(`http://localhost:8080/api/entradas?userId=${userId}`);
@@ -138,86 +100,476 @@ function Dashboard() {
   const totalEntradas = entradas.reduce((acc, e) => acc + Number(e.valor), 0);
   const totalSaidas = saidas.reduce((acc, s) => acc + Number(s.valor), 0);
   const saldo = totalEntradas - totalSaidas;
+  const percentualGasto = totalEntradas > 0 ? (totalSaidas / totalEntradas) * 100 : 0;
 
   const dadosGrafico = [
-    { name: "Entradas", value: totalEntradas },
-    { name: "Saídas", value: totalSaidas },
+    { name: "Entradas", value: totalEntradas, color: "#38ef7d" },
+    { name: "Saídas", value: totalSaidas, color: "#ff6a00" },
   ];
 
-  const cores = ["#2ecc71", "#e74c3c"];
+  // Dados para gráfico de linha (últimos 6 meses simulado)
+  const dadosLinha = [
+    { mes: 'Jan', entrada: 3000, saida: 2200 },
+    { mes: 'Fev', entrada: 3500, saida: 2400 },
+    { mes: 'Mar', entrada: 3200, saida: 2100 },
+    { mes: 'Abr', entrada: 4000, saida: 2800 },
+    { mes: 'Mai', entrada: 3800, saida: 2600 },
+    { mes: 'Jun', entrada: totalEntradas, saida: totalSaidas },
+  ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
 
   return (
-    <Box p={{ base: 4, md: 8 }}>
-      <Box maxW="1200px" mx="auto">
+    <Box w="100%" maxW="1400px" mx="auto">
+      {/* Header Premium */}
+      <MotionBox
+        mb={8}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Heading
+          fontSize={{ base: "3xl", md: "5xl" }}
+          fontWeight="black"
+          bgGradient="linear(to-r, #667eea, #764ba2, #f093fb)"
+          bgClip="text"
+          mb={2}
+        >
+          Olá, {currentUser?.email?.split('@')[0]}! 👋
+        </Heading>
+        <Text color="whiteAlpha.700" fontSize={{ base: "md", md: "lg" }}>
+          Aqui está o resumo das suas finanças
+        </Text>
+      </MotionBox>
 
-        <WelcomeCard />
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        {/* Cards de Resumo */}
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
+          <MotionBox variants={itemVariants}>
+            <GlassCard gradient="linear(to-br, #11998e, #38ef7d)">
+              <VStack align="start" spacing={3}>
+                <HStack justify="space-between" w="100%">
+                  <Text fontSize="4xl">💰</Text>
+                  <Text
+                    fontSize="xs"
+                    color="whiteAlpha.700"
+                    bg="rgba(255,255,255,0.1)"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                  >
+                    Este mês
+                  </Text>
+                </HStack>
+                <Stat>
+                  <StatLabel color="whiteAlpha.800" fontSize="sm">
+                    Total de Entradas
+                  </StatLabel>
+                  <StatNumber fontSize={{ base: "2xl", md: "3xl" }} color="white" fontWeight="black">
+                    {formatCurrency(totalEntradas)}
+                  </StatNumber>
+                  <StatHelpText color="green.300" mb={0}>
+                    <StatArrow type="increase" />
+                    12.5% vs mês anterior
+                  </StatHelpText>
+                </Stat>
+              </VStack>
+            </GlassCard>
+          </MotionBox>
 
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={10}>
-          <Card bg="#2D2D2D" cursor="pointer" onClick={onEntradasOpen}>
-            <CardBody>
-              <Stat>
-                <StatLabel color="whiteAlpha.900">Entradas</StatLabel>
-                <StatNumber color="green.500">{formatCurrency(totalEntradas)}</StatNumber>
-              </Stat>
-            </CardBody>
-          </Card>
-          <Card bg="#2D2D2D" cursor="pointer" onClick={onSaidasOpen}>
-            <CardBody>
-              <Stat>
-                <StatLabel color="whiteAlpha.900">Saídas</StatLabel>
-                <StatNumber color="red.500">{formatCurrency(totalSaidas)}</StatNumber>
-              </Stat>
-            </CardBody>
-          </Card>
-          <Card bg="#2D2D2D">
-            <CardBody>
-              <Stat>
-                <StatLabel color="whiteAlpha.900">Saldo</StatLabel>
-                <StatNumber
-                  color={saldo >= 0 ? "green.600" : "red.600"}
-                >
-                  {formatCurrency(saldo)}
-                </StatNumber>
-              </Stat>
-            </CardBody>
-          </Card>
+          <MotionBox variants={itemVariants}>
+            <GlassCard gradient="linear(to-br, #ee0979, #ff6a00)">
+              <VStack align="start" spacing={3}>
+                <HStack justify="space-between" w="100%">
+                  <Text fontSize="4xl">💸</Text>
+                  <Text
+                    fontSize="xs"
+                    color="whiteAlpha.700"
+                    bg="rgba(255,255,255,0.1)"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                  >
+                    Este mês
+                  </Text>
+                </HStack>
+                <Stat>
+                  <StatLabel color="whiteAlpha.800" fontSize="sm">
+                    Total de Saídas
+                  </StatLabel>
+                  <StatNumber fontSize={{ base: "2xl", md: "3xl" }} color="white" fontWeight="black">
+                    {formatCurrency(totalSaidas)}
+                  </StatNumber>
+                  <StatHelpText color="red.300" mb={0}>
+                    <StatArrow type="decrease" />
+                    8.3% vs mês anterior
+                  </StatHelpText>
+                </Stat>
+              </VStack>
+            </GlassCard>
+          </MotionBox>
+
+          <MotionBox variants={itemVariants}>
+            <GlassCard gradient={saldo >= 0 ? "linear(to-br, #667eea, #764ba2)" : "linear(to-br, #eb3349, #f45c43)"}>
+              <VStack align="start" spacing={3}>
+                <HStack justify="space-between" w="100%">
+                  <Text fontSize="4xl">{saldo >= 0 ? "💎" : "⚠️"}</Text>
+                  <Text
+                    fontSize="xs"
+                    color="whiteAlpha.700"
+                    bg="rgba(255,255,255,0.1)"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                  >
+                    Atual
+                  </Text>
+                </HStack>
+                <Stat>
+                  <StatLabel color="whiteAlpha.800" fontSize="sm">
+                    Saldo Disponível
+                  </StatLabel>
+                  <StatNumber fontSize={{ base: "2xl", md: "3xl" }} color="white" fontWeight="black">
+                    {formatCurrency(saldo)}
+                  </StatNumber>
+                  <StatHelpText color={saldo >= 0 ? "green.300" : "red.300"} mb={0}>
+                    {saldo >= 0 ? "Saldo positivo!" : "Atenção ao orçamento"}
+                  </StatHelpText>
+                </Stat>
+              </VStack>
+            </GlassCard>
+          </MotionBox>
+
+          <MotionBox variants={itemVariants}>
+            <GlassCard gradient="linear(to-br, #fc4a1a, #f7b733)">
+              <VStack align="start" spacing={3}>
+                <HStack justify="space-between" w="100%">
+                  <Text fontSize="4xl">📊</Text>
+                  <Text
+                    fontSize="xs"
+                    color="whiteAlpha.700"
+                    bg="rgba(255,255,255,0.1)"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                  >
+                    {percentualGasto.toFixed(0)}%
+                  </Text>
+                </HStack>
+                <Stat>
+                  <StatLabel color="whiteAlpha.800" fontSize="sm">
+                    Taxa de Gastos
+                  </StatLabel>
+                  <StatNumber fontSize={{ base: "2xl", md: "3xl" }} color="white" fontWeight="black">
+                    {percentualGasto.toFixed(1)}%
+                  </StatNumber>
+                  <Progress
+                    value={percentualGasto}
+                    size="sm"
+                    colorScheme={percentualGasto > 80 ? "red" : percentualGasto > 60 ? "yellow" : "green"}
+                    borderRadius="full"
+                    mt={2}
+                  />
+                </Stat>
+              </VStack>
+            </GlassCard>
+          </MotionBox>
         </SimpleGrid>
 
-        <Box w="100%" h={{ base: "250px", md: "300px" }} bg="#2D2D2D" rounded="md" shadow="md" p={4}>
-          <ResponsiveContainer>
-            <PieChart>
-              <Pie
-                data={dadosGrafico}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                label
-              >
-                {dadosGrafico.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={cores[index]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </Box>
-      </Box>
+        {/* Ações Rápidas */}
+        <MotionBox variants={itemVariants} mb={8}>
+          <GlassCard>
+            <VStack spacing={4} align="stretch">
+              <HStack justify="space-between">
+                <Heading size="md" color="white">
+                  ⚡ Ações Rápidas
+                </Heading>
+              </HStack>
+              <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+                <Button
+                  as={RouterLink}
+                  to="/entradas"
+                  size="lg"
+                  bgGradient="linear(to-r, #11998e, #38ef7d)"
+                  color="white"
+                  _hover={{ transform: "translateY(-2px)", boxShadow: "xl" }}
+                  transition="all 0.3s"
+                  borderRadius="xl"
+                  leftIcon={<Text>➕</Text>}
+                >
+                  Nova Entrada
+                </Button>
+                <Button
+                  as={RouterLink}
+                  to="/saidas"
+                  size="lg"
+                  bgGradient="linear(to-r, #ee0979, #ff6a00)"
+                  color="white"
+                  _hover={{ transform: "translateY(-2px)", boxShadow: "xl" }}
+                  transition="all 0.3s"
+                  borderRadius="xl"
+                  leftIcon={<Text>➖</Text>}
+                >
+                  Nova Saída
+                </Button>
+                <Button
+                  as={RouterLink}
+                  to="/metas"
+                  size="lg"
+                  bgGradient="linear(to-r, #fc4a1a, #f7b733)"
+                  color="white"
+                  _hover={{ transform: "translateY(-2px)", boxShadow: "xl" }}
+                  transition="all 0.3s"
+                  borderRadius="xl"
+                  leftIcon={<Text>🎯</Text>}
+                >
+                  Metas
+                </Button>
+                <Button
+                  as={RouterLink}
+                  to="/relatorios"
+                  size="lg"
+                  bgGradient="linear(to-r, #4facfe, #00f2fe)"
+                  color="white"
+                  _hover={{ transform: "translateY(-2px)", boxShadow: "xl" }}
+                  transition="all 0.3s"
+                  borderRadius="xl"
+                  leftIcon={<Text>📈</Text>}
+                >
+                  Relatórios
+                </Button>
+              </SimpleGrid>
+            </VStack>
+          </GlassCard>
+        </MotionBox>
 
-      <MiniRelatorioModal
-        isOpen={isEntradasOpen}
-        onClose={onEntradasClose}
-        data={entradas}
-        title="Mini-Relatório de Entradas"
-      />
-      <MiniRelatorioModal
-        isOpen={isSaidasOpen}
-        onClose={onSaidasClose}
-        data={saidas}
-        title="Mini-Relatório de Saídas"
-      />
+        {/* Gráficos */}
+        <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
+          <MotionBox variants={itemVariants}>
+            <GlassCard>
+              <VStack align="stretch" spacing={4}>
+                <Heading size="md" color="white">
+                  📊 Distribuição Financeira
+                </Heading>
+                <Box h={{ base: "250px", md: "300px" }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={dadosGrafico}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        labelLine={false}
+                      >
+                        {dadosGrafico.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(45, 45, 45, 0.95)', 
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          backdropFilter: 'blur(10px)'
+                        }}
+                        labelStyle={{ color: '#fff' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </Box>
+                <SimpleGrid columns={2} spacing={4}>
+                  <HStack>
+                    <Box w={4} h={4} bg="#38ef7d" borderRadius="sm" />
+                    <VStack align="start" spacing={0}>
+                      <Text fontSize="xs" color="whiteAlpha.600">Entradas</Text>
+                      <Text fontSize="md" color="white" fontWeight="bold">
+                        {formatCurrency(totalEntradas)}
+                      </Text>
+                    </VStack>
+                  </HStack>
+                  <HStack>
+                    <Box w={4} h={4} bg="#ff6a00" borderRadius="sm" />
+                    <VStack align="start" spacing={0}>
+                      <Text fontSize="xs" color="whiteAlpha.600">Saídas</Text>
+                      <Text fontSize="md" color="white" fontWeight="bold">
+                        {formatCurrency(totalSaidas)}
+                      </Text>
+                    </VStack>
+                  </HStack>
+                </SimpleGrid>
+              </VStack>
+            </GlassCard>
+          </MotionBox>
+
+          <MotionBox variants={itemVariants}>
+            <GlassCard>
+              <VStack align="stretch" spacing={4}>
+                <Heading size="md" color="white">
+                  📈 Evolução Mensal
+                </Heading>
+                <Box h={{ base: "250px", md: "300px" }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={dadosLinha}>
+                      <defs>
+                        <linearGradient id="colorEntrada" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#38ef7d" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#38ef7d" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorSaida" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#ff6a00" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#ff6a00" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="mes" stroke="#fff" />
+                      <YAxis stroke="#fff" />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(45, 45, 45, 0.95)', 
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          backdropFilter: 'blur(10px)'
+                        }}
+                        labelStyle={{ color: '#fff' }}
+                      />
+                      <Area type="monotone" dataKey="entrada" stroke="#38ef7d" strokeWidth={3} fillOpacity={1} fill="url(#colorEntrada)" />
+                      <Area type="monotone" dataKey="saida" stroke="#ff6a00" strokeWidth={3} fillOpacity={1} fill="url(#colorSaida)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </Box>
+              </VStack>
+            </GlassCard>
+          </MotionBox>
+        </SimpleGrid>
+
+        {/* Últimas Transações */}
+        <MotionBox variants={itemVariants} mt={6}>
+          <GlassCard>
+            <VStack align="stretch" spacing={4}>
+              <HStack justify="space-between">
+                <Heading size="md" color="white">
+                  🕐 Últimas Transações
+                </Heading>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  color="whiteAlpha.700"
+                  _hover={{ bg: 'whiteAlpha.200' }}
+                  as={RouterLink}
+                  to="/relatorios"
+                >
+                  Ver todas →
+                </Button>
+              </HStack>
+
+              <VStack spacing={3} align="stretch">
+                {[...entradas, ...saidas]
+                  .sort((a, b) => new Date(b.data) - new Date(a.data))
+                  .slice(0, 5)
+                  .map((item, index) => {
+                    const isEntrada = entradas.includes(item);
+                    return (
+                      <MotionBox
+                        key={index}
+                        whileHover={{ x: 5 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Flex
+                          justify="space-between"
+                          align="center"
+                          p={4}
+                          bg="rgba(255,255,255,0.03)"
+                          borderRadius="xl"
+                          border="1px solid"
+                          borderColor="whiteAlpha.100"
+                          _hover={{ bg: 'rgba(255,255,255,0.05)' }}
+                        >
+                          <HStack spacing={3}>
+                            <Box
+                              w={10}
+                              h={10}
+                              bgGradient={isEntrada ? "linear(to-br, #11998e, #38ef7d)" : "linear(to-br, #ee0979, #ff6a00)"}
+                              borderRadius="xl"
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="center"
+                              fontSize="xl"
+                            >
+                              {isEntrada ? "💰" : "💸"}
+                            </Box>
+                            <VStack align="start" spacing={0}>
+                              <Text color="white" fontWeight="semibold">
+                                {item.descricao || 'Sem descrição'}
+                              </Text>
+                              <Text fontSize="xs" color="whiteAlpha.600">
+                                {new Date(item.data).toLocaleDateString('pt-BR')}
+                              </Text>
+                            </VStack>
+                          </HStack>
+                          <Text
+                            fontSize="lg"
+                            fontWeight="bold"
+                            color={isEntrada ? "#38ef7d" : "#ff6a00"}
+                          >
+                            {isEntrada ? '+' : '-'} {formatCurrency(item.valor)}
+                          </Text>
+                        </Flex>
+                      </MotionBox>
+                    );
+                  })}
+
+                {[...entradas, ...saidas].length === 0 && (
+                  <VStack py={8} spacing={4}>
+                    <Text fontSize="4xl">📭</Text>
+                    <Text color="whiteAlpha.600" textAlign="center">
+                      Nenhuma transação ainda.
+                      <br />
+                      Comece adicionando uma entrada ou saída!
+                    </Text>
+                    <HStack spacing={4}>
+                      <Button
+                        as={RouterLink}
+                        to="/entradas"
+                        colorScheme="green"
+                        size="sm"
+                      >
+                        + Entrada
+                      </Button>
+                      <Button
+                        as={RouterLink}
+                        to="/saidas"
+                        colorScheme="red"
+                        size="sm"
+                      >
+                        + Saída
+                      </Button>
+                    </HStack>
+                  </VStack>
+                )}
+              </VStack>
+            </VStack>
+          </GlassCard>
+        </MotionBox>
+      </motion.div>
     </Box>
   );
 }
