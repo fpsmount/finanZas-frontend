@@ -37,6 +37,7 @@ import { useAuth } from '../auth/AuthContext';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import 'jspdf-autotable';
+import { format } from "date-fns";
 
 const MotionBox = motion(Box);
 
@@ -84,21 +85,105 @@ const GlassCard = ({ children, gradient, ...props }) => (
   </MotionBox>
 );
 
+const processarDadosMensais = (allEntradas, allSaidas) => {
+  const data = new Date();
+  const meses = [];
+  const dadosAgregados = {};
+
+  for (let i = 5; i >= 0; i--) {
+    const mesData = new Date(data.getFullYear(), data.getMonth() - i, 1);
+    const mesChave = format(mesData, 'yyyy-MM');
+    const nomeMes = format(mesData, 'MMM'); 
+    meses.push({ mesChave, nomeMes });
+    dadosAgregados[mesChave] = { mes: nomeMes, entrada: 0, saida: 0 };
+  }
+
+  allEntradas.forEach(e => {
+    const mesChave = format(new Date(e.data), 'yyyy-MM');
+    if (dadosAgregados[mesChave]) {
+      dadosAgregados[mesChave].entrada += Number(e.valor);
+    }
+  });
+
+  allSaidas.forEach(s => {
+    const mesChave = format(new Date(s.data), 'yyyy-MM');
+    if (dadosAgregados[mesChave]) {
+      dadosAgregados[mesChave].saida += Number(s.valor);
+    }
+  });
+
+  return meses.map(m => dadosAgregados[m.mesChave]);
+};
+
 function Relatorios() {
-  const [entradas, setEntradas] = useState([]);
-  const [saidas, setSaidas] = useState([]);
+  // Alterado para armazenar todos os dados para o cálculo histórico e PDF
+  const [allEntradas, setAllEntradas] = useState([]); 
+  const [allSaidas, setAllSaidas] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const toast = useToast();
   const { currentUser } = useAuth();
+  
+  // Variável para armazenar dados do mês anterior para os cards de estatísticas
+  const [dadosMesAnterior, setDadosMesAnterior] = useState({
+      entradas: 0,
+      saidas: 0,
+  });
 
-  const fetchDados = async () => {
+  // Função central para buscar e processar dados
+  const fetchDadosRelatorios = async () => {
     if (!currentUser) return;
     try {
       const userId = currentUser.uid;
+      
+      // Busca todas as entradas/saídas (para relatórios históricos)
       const entradasResponse = await axios.get(`http://localhost:8080/api/entradas?userId=${userId}`);
-      setEntradas(entradasResponse.data);
       const saidasResponse = await axios.get(`http://localhost:8080/api/saidas?userId=${userId}`);
-      setSaidas(saidasResponse.data);
+      
+      const fetchedEntradas = entradasResponse.data;
+      const fetchedSaidas = saidasResponse.data;
+
+      setAllEntradas(fetchedEntradas);
+      setAllSaidas(fetchedSaidas);
+
+      // Filtra para o mês atual
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      
+      const entradasMesAtual = fetchedEntradas.filter(e => {
+        const dataEntrada = new Date(e.data);
+        return dataEntrada.getMonth() === currentMonth && dataEntrada.getFullYear() === currentYear;
+      });
+      
+      const saidasMesAtual = fetchedSaidas.filter(s => {
+        const dataSaida = new Date(s.data);
+        return dataSaida.getMonth() === currentMonth && dataSaida.getFullYear() === currentYear;
+      });
+
+      // Calcula dados do mês anterior (para o StatHelpText)
+      const mesAnteriorData = new Date(currentDate.getFullYear(), currentMonth - 1, 1);
+      const mesAnterior = mesAnteriorData.getMonth();
+      const anoMesAnterior = mesAnteriorData.getFullYear();
+      
+      const totalEntradasMesAnterior = fetchedEntradas
+        .filter(e => {
+          const dataEntrada = new Date(e.data);
+          return dataEntrada.getMonth() === mesAnterior && dataEntrada.getFullYear() === anoMesAnterior;
+        })
+        .reduce((acc, e) => acc + Number(e.valor), 0);
+        
+      const totalSaidasMesAnterior = fetchedSaidas
+        .filter(s => {
+          const dataSaida = new Date(s.data);
+          return dataSaida.getMonth() === mesAnterior && dataSaida.getFullYear() === anoMesAnterior;
+        })
+        .reduce((acc, s) => acc + Number(s.valor), 0);
+
+      setDadosMesAnterior({
+          entradas: totalEntradasMesAnterior,
+          saidas: totalSaidasMesAnterior,
+      });
+
     } catch (error) {
       console.error("Erro ao buscar dados dos relatórios:", error);
       toast({
@@ -113,41 +198,73 @@ function Relatorios() {
   };
 
   useEffect(() => {
-    fetchDados();
+    fetchDadosRelatorios();
   }, [currentUser]);
 
-  const totalEntradas = entradas.reduce((acc, e) => acc + Number(e.valor), 0);
-  const totalSaidas = saidas.reduce((acc, s) => acc + Number(s.valor), 0);
+  // Filtra dados para o mês atual para os cards de resumo
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+  
+  const entradasMesAtual = allEntradas.filter(e => {
+    const dataEntrada = new Date(e.data);
+    return dataEntrada.getMonth() === currentMonth && dataEntrada.getFullYear() === currentYear;
+  });
+  
+  const saidasMesAtual = allSaidas.filter(s => {
+    const dataSaida = new Date(s.data);
+    return dataSaida.getMonth() === currentMonth && dataSaida.getFullYear() === currentYear;
+  });
+
+  const totalEntradas = entradasMesAtual.reduce((acc, e) => acc + Number(e.valor), 0);
+  const totalSaidas = saidasMesAtual.reduce((acc, s) => acc + Number(s.valor), 0);
   const saldo = totalEntradas - totalSaidas;
   const taxaEconomia = totalEntradas > 0 ? ((saldo / totalEntradas) * 100) : 0;
 
+  // Cálculo de porcentagens (remover mock)
+  const percentualEntradas = dadosMesAnterior.entradas > 0 ? (((totalEntradas - dadosMesAnterior.entradas) / dadosMesAnterior.entradas) * 100) : 0;
+  const percentualSaidas = dadosMesAnterior.saidas > 0 ? (((totalSaidas - dadosMesAnterior.saidas) / dadosMesAnterior.saidas) * 100) : 0;
+
+  // Função para renderizar o StatHelpText (remover mock)
+  const formatPercentual = (percentual) => {
+    if (percentual === 0) {
+      return (
+        <StatHelpText color="whiteAlpha.600" mb={0}>
+          Sem alteração vs mês anterior
+        </StatHelpText>
+      );
+    }
+    const isIncrease = percentual >= 0;
+    const arrow = isIncrease ? <StatArrow type="increase" /> : <StatArrow type="decrease" />;
+    const color = isIncrease ? "green.300" : "red.300";
+    const text = `${isIncrease ? '+' : ''}${Math.abs(percentual).toFixed(1)}% vs mês anterior`;
+    
+    return (
+        <StatHelpText color={color} mb={0}>
+          {arrow} {text}
+        </StatHelpText>
+    );
+  };
+  
   const dataBarras = [
     { name: "Entradas", valor: totalEntradas, fill: "#38ef7d" },
     { name: "Saídas", valor: totalSaidas, fill: "#ff6a00" },
   ];
 
-  const fixas = saidas.filter((s) => s.tipo === "fixa").reduce((acc, s) => acc + Number(s.valor), 0);
-  const variaveis = saidas.filter((s) => s.tipo === "variável").reduce((acc, s) => acc + Number(s.valor), 0);
+  const fixas = saidasMesAtual.filter((s) => s.tipo === "fixa").reduce((acc, s) => acc + Number(s.valor), 0);
+  const variaveis = saidasMesAtual.filter((s) => s.tipo === "variável").reduce((acc, s) => acc + Number(s.valor), 0);
   
   const dataPizza = [
     { name: "Fixas", value: fixas, color: "#667eea" },
     { name: "Variáveis", value: variaveis, color: "#f7b733" },
-  ];
+  ].filter(d => d.value > 0);
   
   const dataFixasVariaveis = [
     { name: "Fixas", valor: fixas, fill: "#667eea" },
     { name: "Variáveis", valor: variaveis, fill: "#f7b733" },
   ];
 
-  // Simulação de dados mensais (últimos 6 meses)
-  const dadosMensais = [
-    { mes: 'Jan', entrada: 3000, saida: 2200 },
-    { mes: 'Fev', entrada: 3500, saida: 2400 },
-    { mes: 'Mar', entrada: 3200, saida: 2100 },
-    { mes: 'Abr', entrada: 4000, saida: 2800 },
-    { mes: 'Mai', entrada: 3800, saida: 2600 },
-    { mes: 'Jun', entrada: totalEntradas, saida: totalSaidas },
-  ];
+  const dadosMensais = processarDadosMensais(allEntradas, allSaidas);
 
   const handleExportPDF = () => {
     setIsGenerating(true);
@@ -175,7 +292,7 @@ function Relatorios() {
         pdf.setTextColor(255, 255, 255);
         pdf.text("Detalhes Completos - FinanZas", 14, 20);
 
-        const entradasRows = entradas.map(e => ({
+        const entradasRows = allEntradas.map(e => ({
             data: formatDate(e.data),
             descricao: e.descricao || '',
             valor: formatCurrency(e.valor),
@@ -200,7 +317,7 @@ function Relatorios() {
         
         let startY = pdf.lastAutoTable.finalY;
 
-        const saidasRows = saidas.map(s => ({
+        const saidasRows = allSaidas.map(s => ({
             data: formatDate(s.data),
             descricao: s.descricao || '',
             valor: formatCurrency(s.valor),

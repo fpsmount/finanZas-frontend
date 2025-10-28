@@ -33,6 +33,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from "axios";
 import { useAuth } from '../auth/AuthContext';
+import { format } from 'date-fns';
 
 const MotionBox = motion(Box);
 const MotionFlex = motion(Flex);
@@ -75,19 +76,138 @@ const GlassCard = ({ children, gradient, ...props }) => (
   </MotionBox>
 );
 
+// Função para processar e agregar dados mensais (para os gráficos)
+const processarDadosMensais = (allEntradas, allSaidas) => {
+  const data = new Date();
+  const meses = [];
+  const dadosAgregados = {};
+
+  // Gera os últimos 6 meses (incluindo o atual)
+  for (let i = 5; i >= 0; i--) {
+    const mesData = new Date(data.getFullYear(), data.getMonth() - i, 1);
+    const mesChave = format(mesData, 'yyyy-MM');
+    const nomeMes = format(mesData, 'MMM'); 
+    meses.push({ mesChave, nomeMes });
+    dadosAgregados[mesChave] = { mes: nomeMes, entrada: 0, saida: 0 };
+  }
+
+  // Agrega as entradas
+  allEntradas.forEach(e => {
+    const mesChave = format(new Date(e.data), 'yyyy-MM');
+    if (dadosAgregados[mesChave]) {
+      dadosAgregados[mesChave].entrada += Number(e.valor);
+    }
+  });
+
+  // Agrega as saídas
+  allSaidas.forEach(s => {
+    const mesChave = format(new Date(s.data), 'yyyy-MM');
+    if (dadosAgregados[mesChave]) {
+      dadosAgregados[mesChave].saida += Number(s.valor);
+    }
+  });
+
+  // Converte para array na ordem correta
+  return meses.map(m => dadosAgregados[m.mesChave]);
+};
+
+// Função para renderizar o StatHelpText (retirado do mock)
+const formatPercentual = (percentual) => {
+  if (percentual === 0 || !isFinite(percentual)) {
+    return (
+      <StatHelpText color="whiteAlpha.600" mb={0}>
+        Sem alteração vs mês anterior
+      </StatHelpText>
+    );
+  }
+  const isIncrease = percentual >= 0;
+  const arrow = isIncrease ? <StatArrow type="increase" /> : <StatArrow type="decrease" />;
+  const color = isIncrease ? "green.300" : "red.300";
+  const text = `${isIncrease ? '+' : ''}${Math.abs(percentual).toFixed(1)}% vs mês anterior`;
+  
+  return (
+      <StatHelpText color={color} mb={0}>
+        {arrow} {text}
+      </StatHelpText>
+  );
+};
+
 function Dashboard() {
-  const [entradas, setEntradas] = useState([]);
+  // Alterado para armazenar todos os dados para histórico e lista
+  const [entradas, setEntradas] = useState([]); 
   const [saidas, setSaidas] = useState([]);
+  const [dadosMesAtual, setDadosMesAtual] = useState({
+    entradas: 0,
+    saidas: 0,
+  });
+  const [dadosMesAnterior, setDadosMesAnterior] = useState({
+    entradas: 0,
+    saidas: 0,
+  });
   const { currentUser } = useAuth();
 
   const fetchDados = async () => {
     if (!currentUser) return;
     try {
       const userId = currentUser.uid;
-      const entradasResponse = await axios.get(`http://localhost:8080/api/entradas?userId=${userId}`);
-      setEntradas(entradasResponse.data);
-      const saidasResponse = await axios.get(`http://localhost:8080/api/saidas?userId=${userId}`);
-      setSaidas(saidasResponse.data);
+      
+      // Busca todos os dados para cálculos históricos
+      const allEntradasResponse = await axios.get(`http://localhost:8080/api/entradas?userId=${userId}`);
+      const allSaidasResponse = await axios.get(`http://localhost:8080/api/saidas?userId=${userId}`);
+      
+      const allEntradas = allEntradasResponse.data;
+      const allSaidas = allSaidasResponse.data;
+
+      // Filter data for current month (para cards de resumo)
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      
+      const entradasMesAtual = allEntradas.filter(e => {
+        const dataEntrada = new Date(e.data);
+        return dataEntrada.getMonth() === currentMonth && dataEntrada.getFullYear() === currentYear;
+      });
+      
+      const saidasMesAtual = allSaidas.filter(s => {
+        const dataSaida = new Date(s.data);
+        return dataSaida.getMonth() === currentMonth && dataSaida.getFullYear() === currentYear;
+      });
+      
+      const totalEntradasMesAtual = entradasMesAtual.reduce((acc, e) => acc + Number(e.valor), 0);
+      const totalSaidasMesAtual = saidasMesAtual.reduce((acc, s) => acc + Number(s.valor), 0);
+      
+      setDadosMesAtual({
+          entradas: totalEntradasMesAtual,
+          saidas: totalSaidasMesAtual,
+      });
+
+      // Calculate data for previous month (para comparação nos cards)
+      const mesAnteriorData = new Date(currentDate.getFullYear(), currentMonth - 1, 1);
+      const mesAnterior = mesAnteriorData.getMonth();
+      const anoMesAnterior = mesAnteriorData.getFullYear();
+      
+      const totalEntradasMesAnterior = allEntradas
+        .filter(e => {
+          const dataEntrada = new Date(e.data);
+          return dataEntrada.getMonth() === mesAnterior && dataEntrada.getFullYear() === anoMesAnterior;
+        })
+        .reduce((acc, e) => acc + Number(e.valor), 0);
+        
+      const totalSaidasMesAnterior = allSaidas
+        .filter(s => {
+          const dataSaida = new Date(s.data);
+          return dataSaida.getMonth() === mesAnterior && dataSaida.getFullYear() === anoMesAnterior;
+        })
+        .reduce((acc, s) => acc + Number(s.valor), 0);
+
+      setDadosMesAnterior({
+          entradas: totalEntradasMesAnterior,
+          saidas: totalSaidasMesAnterior,
+      });
+      
+      setEntradas(allEntradas);
+      setSaidas(allSaidas);
+
     } catch (error) {
       console.error("Erro ao buscar dados do dashboard:", error);
     }
@@ -96,27 +216,25 @@ function Dashboard() {
   useEffect(() => {
     fetchDados();
   }, [currentUser]);
-
-  const totalEntradas = entradas.reduce((acc, e) => acc + Number(e.valor), 0);
-  const totalSaidas = saidas.reduce((acc, s) => acc + Number(s.valor), 0);
+  
+  // Dados usados nos cards de resumo
+  const totalEntradas = dadosMesAtual.entradas;
+  const totalSaidas = dadosMesAtual.saidas;
   const saldo = totalEntradas - totalSaidas;
   const percentualGasto = totalEntradas > 0 ? (totalSaidas / totalEntradas) * 100 : 0;
+  
+  // Cálculo de porcentagens (remover mock)
+  const percentualEntradas = dadosMesAnterior.entradas > 0 ? (((totalEntradas - dadosMesAnterior.entradas) / dadosMesAnterior.entradas) * 100) : 0;
+  const percentualSaidas = dadosMesAnterior.saidas > 0 ? (((totalSaidas - dadosMesAnterior.saidas) / dadosMesAnterior.saidas) * 100) : 0;
+
 
   const dadosGrafico = [
     { name: "Entradas", value: totalEntradas, color: "#38ef7d" },
     { name: "Saídas", value: totalSaidas, color: "#ff6a00" },
   ];
 
-  // Dados para gráfico de linha (últimos 6 meses simulado)
-  const dadosLinha = [
-    { mes: 'Jan', entrada: 3000, saida: 2200 },
-    { mes: 'Fev', entrada: 3500, saida: 2400 },
-    { mes: 'Mar', entrada: 3200, saida: 2100 },
-    { mes: 'Abr', entrada: 4000, saida: 2800 },
-    { mes: 'Mai', entrada: 3800, saida: 2600 },
-    { mes: 'Jun', entrada: totalEntradas, saida: totalSaidas },
-  ];
-
+  // Dados para gráfico de linha processados (não-mockados)
+  const dadosLinha = processarDadosMensais(entradas, saidas);
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -148,7 +266,7 @@ function Dashboard() {
           bgClip="text"
           mb={2}
         >
-          Olá, {currentUser?.email?.split('@')[0]}! 👋
+          Olá, {currentUser?.displayName || currentUser?.email?.split('@')[0]}! 👋
         </Heading>
         <Text color="whiteAlpha.700" fontSize={{ base: "md", md: "lg" }}>
           Aqui está o resumo das suas finanças

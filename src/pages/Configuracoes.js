@@ -22,10 +22,12 @@ import {
   Badge,
   IconButton,
   Divider,
+  Spinner,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon, CopyIcon, CheckIcon } from '@chakra-ui/icons';
 import { motion } from "framer-motion";
 import { useAuth } from '../auth/AuthContext';
+import axios from "axios";
 
 const MotionBox = motion(Box);
 
@@ -65,6 +67,7 @@ function Configuracoes() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const toast = useToast();
   const { colorMode, toggleColorMode } = useColorMode();
   
@@ -73,6 +76,60 @@ function Configuracoes() {
   const whatsappId = currentUser ? currentUser.uid : "Faça login para ver seu ID";
   
   const { onCopy, hasCopied } = useClipboard(whatsappId);
+
+  const handleExportData = async () => {
+    if (!currentUser) return;
+
+    setIsExporting(true);
+    try {
+      const userId = currentUser.uid;
+      
+      const entradasResponse = await axios.get(`http://localhost:8080/api/entradas?userId=${userId}`);
+      const saidasResponse = await axios.get(`http://localhost:8080/api/saidas?userId=${userId}`);
+      
+      const dataToExport = {
+        metaData: {
+            app: "FinanZas TCC Export",
+            exportDate: new Date().toISOString(),
+            userId: userId,
+        },
+        entradas: entradasResponse.data,
+        saidas: saidasResponse.data,
+      };
+
+      const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
+        JSON.stringify(dataToExport, null, 2)
+      )}`;
+      const link = document.createElement('a');
+      link.href = jsonString;
+      link.download = `finanzas_export_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: "📥 Exportação Concluída!",
+        description: "Seus dados foram baixados em formato JSON.",
+        status: "success",
+        duration: 4000,
+        isClosable: true,
+        position: "top-right",
+      });
+
+    } catch (error) {
+      console.error("Erro ao exportar dados:", error);
+      toast({
+        title: "❌ Erro na Exportação",
+        description: "Não foi possível buscar os dados do servidor. Verifique o backend.",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const handleSalvar = () => {
     toast({
@@ -139,7 +196,6 @@ function Configuracoes() {
         initial="hidden"
         animate="show"
       >
-        {/* Card de Perfil do Usuário */}
         {currentUser && (
           <MotionBox variants={itemVariants} mb={6}>
             <GlassCard gradient="linear(to-br, #667eea, #764ba2)">
@@ -167,9 +223,6 @@ function Configuracoes() {
                     <Badge bgGradient="linear(to-r, #11998e, #38ef7d)" color="white" px={3} py={1} borderRadius="full">
                       ✓ Conta Ativa
                     </Badge>
-                    <Badge bgGradient="linear(to-r, #fc4a1a, #f7b733)" color="white" px={3} py={1} borderRadius="full">
-                      👑 Premium
-                    </Badge>
                   </HStack>
                 </VStack>
               </Flex>
@@ -177,7 +230,6 @@ function Configuracoes() {
           </MotionBox>
         )}
 
-        {/* WhatsApp Integration */}
         {currentUser && (
           <MotionBox variants={itemVariants} mb={6}>
             <GlassCard gradient="linear(to-br, #25d366, #128c7e)">
@@ -268,7 +320,6 @@ function Configuracoes() {
           </MotionBox>
         )}
 
-        {/* Informações da Conta */}
         <MotionBox variants={itemVariants} mb={6}>
           <GlassCard gradient="linear(to-br, #4facfe, #00f2fe)">
             <VStack align="stretch" spacing={5}>
@@ -278,7 +329,6 @@ function Configuracoes() {
                   Informações da Conta
                 </Heading>
               </HStack>
-
               <FormControl>
                 <FormLabel color="whiteAlpha.900" fontSize="sm" fontWeight="semibold">
                   📝 Nome Completo
@@ -374,7 +424,6 @@ function Configuracoes() {
           </GlassCard>
         </MotionBox>
 
-        {/* Preferências */}
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6} mb={6}>
           <MotionBox variants={itemVariants}>
             <GlassCard gradient="linear(to-br, #667eea, #764ba2)">
@@ -492,7 +541,6 @@ function Configuracoes() {
           </MotionBox>
         </SimpleGrid>
 
-        {/* Segurança */}
         <MotionBox variants={itemVariants} mb={6}>
           <GlassCard gradient="linear(to-br, #fc4a1a, #f7b733)">
             <VStack align="stretch" spacing={4}>
@@ -503,42 +551,25 @@ function Configuracoes() {
                 </Heading>
               </HStack>
 
-              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-                <Box p={4} bg="rgba(255, 255, 255, 0.1)" borderRadius="xl" textAlign="center">
-                  <Text fontSize="3xl" mb={2}>🔒</Text>
-                  <Text color="white" fontWeight="semibold" mb={1}>
-                    Autenticação 2FA
-                  </Text>
-                  <Text fontSize="xs" color="whiteAlpha.600" mb={3}>
-                    Proteção extra
-                  </Text>
-                  <Button size="sm" colorScheme="orange" borderRadius="lg" w="full">
-                    Ativar
-                  </Button>
-                </Box>
-
-                <Box p={4} bg="rgba(255, 255, 255, 0.1)" borderRadius="xl" textAlign="center">
-                  <Text fontSize="3xl" mb={2}>🗝️</Text>
-                  <Text color="white" fontWeight="semibold" mb={1}>
-                    Sessões Ativas
-                  </Text>
-                  <Text fontSize="xs" color="whiteAlpha.600" mb={3}>
-                    Gerenciar dispositivos
-                  </Text>
-                  <Button size="sm" colorScheme="orange" borderRadius="lg" w="full">
-                    Ver Sessões
-                  </Button>
-                </Box>
-
+              <SimpleGrid columns={{ base: 1, md: 1 }} spacing={4}>
+                
                 <Box p={4} bg="rgba(255, 255, 255, 0.1)" borderRadius="xl" textAlign="center">
                   <Text fontSize="3xl" mb={2}>📥</Text>
                   <Text color="white" fontWeight="semibold" mb={1}>
-                    Exportar Dados
+                    Exportar Dados (JSON)
                   </Text>
                   <Text fontSize="xs" color="whiteAlpha.600" mb={3}>
-                    Backup completo
+                    Baixe um **backup completo** das suas entradas e saídas.
                   </Text>
-                  <Button size="sm" colorScheme="orange" borderRadius="lg" w="full">
+                  <Button 
+                    size="sm" 
+                    colorScheme="orange" 
+                    borderRadius="lg" 
+                    w="full"
+                    onClick={handleExportData}
+                    isLoading={isExporting}  
+                    loadingText="Baixando..."
+                  >
                     Baixar
                   </Button>
                 </Box>
@@ -547,7 +578,6 @@ function Configuracoes() {
           </GlassCard>
         </MotionBox>
 
-        {/* Suporte e Ajuda */}
         <MotionBox variants={itemVariants} mb={6}>
           <GlassCard gradient="linear(to-br, #f093fb, #f5576c)">
             <VStack align="stretch" spacing={4}>
@@ -557,7 +587,6 @@ function Configuracoes() {
                   Suporte e Ajuda
                 </Heading>
               </HStack>
-
               <Text color="whiteAlpha.800" fontSize="sm">
                 Nossa equipe está sempre pronta para ajudar você! Entre em contato através dos canais abaixo:
               </Text>
@@ -624,7 +653,6 @@ function Configuracoes() {
           </GlassCard>
         </MotionBox>
 
-        {/* Sobre o App */}
         <MotionBox variants={itemVariants}>
           <GlassCard>
             <VStack align="stretch" spacing={4}>
