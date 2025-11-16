@@ -116,26 +116,22 @@ const processarDadosMensais = (allEntradas, allSaidas) => {
 };
 
 function Relatorios() {
-  // Alterado para armazenar todos os dados para o cálculo histórico e PDF
   const [allEntradas, setAllEntradas] = useState([]); 
   const [allSaidas, setAllSaidas] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const toast = useToast();
   const { currentUser } = useAuth();
   
-  // Variável para armazenar dados do mês anterior para os cards de estatísticas
   const [dadosMesAnterior, setDadosMesAnterior] = useState({
       entradas: 0,
       saidas: 0,
   });
 
-  // Função central para buscar e processar dados
   const fetchDadosRelatorios = async () => {
     if (!currentUser) return;
     try {
       const userId = currentUser.uid;
       
-      // Busca todas as entradas/saídas (para relatórios históricos)
       const entradasResponse = await axios.get(`http://localhost:8080/api/entradas?userId=${userId}`);
       const saidasResponse = await axios.get(`http://localhost:8080/api/saidas?userId=${userId}`);
       
@@ -145,7 +141,6 @@ function Relatorios() {
       setAllEntradas(fetchedEntradas);
       setAllSaidas(fetchedSaidas);
 
-      // Filtra para o mês atual
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth();
       const currentYear = currentDate.getFullYear();
@@ -160,7 +155,6 @@ function Relatorios() {
         return dataSaida.getMonth() === currentMonth && dataSaida.getFullYear() === currentYear;
       });
 
-      // Calcula dados do mês anterior (para o StatHelpText)
       const mesAnteriorData = new Date(currentDate.getFullYear(), currentMonth - 1, 1);
       const mesAnterior = mesAnteriorData.getMonth();
       const anoMesAnterior = mesAnteriorData.getFullYear();
@@ -201,7 +195,6 @@ function Relatorios() {
     fetchDadosRelatorios();
   }, [currentUser]);
 
-  // Filtra dados para o mês atual para os cards de resumo
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
@@ -221,11 +214,9 @@ function Relatorios() {
   const saldo = totalEntradas - totalSaidas;
   const taxaEconomia = totalEntradas > 0 ? ((saldo / totalEntradas) * 100) : 0;
 
-  // Cálculo de porcentagens (remover mock)
   const percentualEntradas = dadosMesAnterior.entradas > 0 ? (((totalEntradas - dadosMesAnterior.entradas) / dadosMesAnterior.entradas) * 100) : 0;
   const percentualSaidas = dadosMesAnterior.saidas > 0 ? (((totalSaidas - dadosMesAnterior.saidas) / dadosMesAnterior.saidas) * 100) : 0;
 
-  // Função para renderizar o StatHelpText (remover mock)
   const formatPercentual = (percentual) => {
     if (percentual === 0) {
       return (
@@ -379,7 +370,6 @@ function Relatorios() {
 
   return (
     <Box w="100%" maxW="1400px" mx="auto">
-      {/* Header */}
       <MotionBox
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -428,7 +418,6 @@ function Relatorios() {
           initial="hidden"
           animate="show"
         >
-          {/* Cards de Resumo */}
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
             <MotionBox variants={itemVariants}>
               <GlassCard gradient="linear(to-br, #11998e, #38ef7d)">
@@ -481,7 +470,6 @@ function Relatorios() {
             </MotionBox>
           </SimpleGrid>
 
-          {/* Gráficos Principais */}
           <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6} mb={8}>
             <MotionBox variants={itemVariants}>
               <GlassCard>
@@ -558,7 +546,6 @@ function Relatorios() {
             </MotionBox>
           </SimpleGrid>
 
-          {/* Gráficos Secundários */}
           <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6} mb={8}>
             <MotionBox variants={itemVariants}>
               <GlassCard>
@@ -654,7 +641,6 @@ function Relatorios() {
             </MotionBox>
           </SimpleGrid>
 
-          {/* Insights Premium */}
           <MotionBox variants={itemVariants}>
             <GlassCard gradient="linear(to-br, #667eea, #764ba2)">
               <VStack align="stretch" spacing={4}>

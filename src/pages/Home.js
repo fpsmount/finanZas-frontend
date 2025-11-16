@@ -76,13 +76,11 @@ const GlassCard = ({ children, gradient, ...props }) => (
   </MotionBox>
 );
 
-// Função para processar e agregar dados mensais (para os gráficos)
 const processarDadosMensais = (allEntradas, allSaidas) => {
   const data = new Date();
   const meses = [];
   const dadosAgregados = {};
 
-  // Gera os últimos 6 meses (incluindo o atual)
   for (let i = 5; i >= 0; i--) {
     const mesData = new Date(data.getFullYear(), data.getMonth() - i, 1);
     const mesChave = format(mesData, 'yyyy-MM');
@@ -91,7 +89,6 @@ const processarDadosMensais = (allEntradas, allSaidas) => {
     dadosAgregados[mesChave] = { mes: nomeMes, entrada: 0, saida: 0 };
   }
 
-  // Agrega as entradas
   allEntradas.forEach(e => {
     const mesChave = format(new Date(e.data), 'yyyy-MM');
     if (dadosAgregados[mesChave]) {
@@ -99,7 +96,6 @@ const processarDadosMensais = (allEntradas, allSaidas) => {
     }
   });
 
-  // Agrega as saídas
   allSaidas.forEach(s => {
     const mesChave = format(new Date(s.data), 'yyyy-MM');
     if (dadosAgregados[mesChave]) {
@@ -107,11 +103,9 @@ const processarDadosMensais = (allEntradas, allSaidas) => {
     }
   });
 
-  // Converte para array na ordem correta
   return meses.map(m => dadosAgregados[m.mesChave]);
 };
 
-// Função para renderizar o StatHelpText (retirado do mock)
 const formatPercentual = (percentual) => {
   if (percentual === 0 || !isFinite(percentual)) {
     return (
@@ -133,7 +127,6 @@ const formatPercentual = (percentual) => {
 };
 
 function Dashboard() {
-  // Alterado para armazenar todos os dados para histórico e lista
   const [entradas, setEntradas] = useState([]); 
   const [saidas, setSaidas] = useState([]);
   const [dadosMesAtual, setDadosMesAtual] = useState({
@@ -151,14 +144,12 @@ function Dashboard() {
     try {
       const userId = currentUser.uid;
       
-      // Busca todos os dados para cálculos históricos
       const allEntradasResponse = await axios.get(`http://localhost:8080/api/entradas?userId=${userId}`);
       const allSaidasResponse = await axios.get(`http://localhost:8080/api/saidas?userId=${userId}`);
       
       const allEntradas = allEntradasResponse.data;
       const allSaidas = allSaidasResponse.data;
 
-      // Filter data for current month (para cards de resumo)
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth();
       const currentYear = currentDate.getFullYear();
@@ -181,7 +172,6 @@ function Dashboard() {
           saidas: totalSaidasMesAtual,
       });
 
-      // Calculate data for previous month (para comparação nos cards)
       const mesAnteriorData = new Date(currentDate.getFullYear(), currentMonth - 1, 1);
       const mesAnterior = mesAnteriorData.getMonth();
       const anoMesAnterior = mesAnteriorData.getFullYear();
@@ -217,13 +207,11 @@ function Dashboard() {
     fetchDados();
   }, [currentUser]);
   
-  // Dados usados nos cards de resumo
   const totalEntradas = dadosMesAtual.entradas;
   const totalSaidas = dadosMesAtual.saidas;
   const saldo = totalEntradas - totalSaidas;
   const percentualGasto = totalEntradas > 0 ? (totalSaidas / totalEntradas) * 100 : 0;
   
-  // Cálculo de porcentagens (remover mock)
   const percentualEntradas = dadosMesAnterior.entradas > 0 ? (((totalEntradas - dadosMesAnterior.entradas) / dadosMesAnterior.entradas) * 100) : 0;
   const percentualSaidas = dadosMesAnterior.saidas > 0 ? (((totalSaidas - dadosMesAnterior.saidas) / dadosMesAnterior.saidas) * 100) : 0;
 
@@ -233,7 +221,6 @@ function Dashboard() {
     { name: "Saídas", value: totalSaidas, color: "#ff6a00" },
   ];
 
-  // Dados para gráfico de linha processados (não-mockados)
   const dadosLinha = processarDadosMensais(entradas, saidas);
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -252,7 +239,6 @@ function Dashboard() {
 
   return (
     <Box w="100%" maxW="1400px" mx="auto">
-      {/* Header Premium */}
       <MotionBox
         mb={8}
         initial={{ opacity: 0, y: -20 }}
@@ -278,7 +264,6 @@ function Dashboard() {
         initial="hidden"
         animate="show"
       >
-        {/* Cards de Resumo */}
         <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
           <MotionBox variants={itemVariants}>
             <GlassCard gradient="linear(to-br, #11998e, #38ef7d)">
@@ -411,7 +396,6 @@ function Dashboard() {
           </MotionBox>
         </SimpleGrid>
 
-        {/* Ações Rápidas */}
         <MotionBox variants={itemVariants} mb={8}>
           <GlassCard>
             <VStack spacing={4} align="stretch">
@@ -478,7 +462,6 @@ function Dashboard() {
           </GlassCard>
         </MotionBox>
 
-        {/* Gráficos */}
         <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
           <MotionBox variants={itemVariants}>
             <GlassCard>
@@ -579,7 +562,6 @@ function Dashboard() {
           </MotionBox>
         </SimpleGrid>
 
-        {/* Últimas Transações */}
         <MotionBox variants={itemVariants} mt={6}>
           <GlassCard>
             <VStack align="stretch" spacing={4}>

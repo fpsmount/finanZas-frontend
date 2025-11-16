@@ -108,7 +108,6 @@ function LoginPage() {
           position="relative"
           overflow="hidden"
         >
-          {/* Gradiente de fundo */}
           <Box
             position="absolute"
             top="-50%"
@@ -121,7 +120,6 @@ function LoginPage() {
           />
 
           <VStack spacing={6} align="stretch" position="relative" zIndex={1}>
-            {/* Logo */}
             <Center>
               <MotionBox
                 whileHover={{ scale: 1.05, rotate: 5 }}
@@ -136,7 +134,6 @@ function LoginPage() {
               </MotionBox>
             </Center>
 
-            {/* Título */}
             <VStack spacing={2}>
               <Heading 
                 as="h1" 
@@ -153,7 +150,6 @@ function LoginPage() {
               </Text>
             </VStack>
 
-            {/* Botão Google */}
             <Button
               onClick={handleGoogleLogin}
               isLoading={loading}
@@ -183,7 +179,6 @@ function LoginPage() {
               <Divider borderColor="whiteAlpha.300" />
             </HStack>
 
-            {/* Formulário */}
             <form onSubmit={handleEmailLogin}>
               <VStack spacing={4}>
                 <FormControl>
@@ -261,7 +256,6 @@ function LoginPage() {
               </VStack>
             </form>
 
-            {/* Link para Cadastro */}
             <Center>
               <Text color="whiteAlpha.700" fontSize="sm">
                 Não tem uma conta?{' '}
@@ -277,7 +271,6 @@ function LoginPage() {
               </Text>
             </Center>
 
-            {/* Footer */}
             <Center pt={4}>
               <Text fontSize="xs" color="whiteAlpha.500" textAlign="center">
                 Ao continuar, você concorda com nossos<br />

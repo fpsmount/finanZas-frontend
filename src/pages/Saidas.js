@@ -264,7 +264,6 @@ function Saidas() {
 
   return (
     <Box w="100%" maxW="1400px" mx="auto">
-      {/* Header */}
       <MotionBox
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -308,7 +307,6 @@ function Saidas() {
           </Button>
         </Flex>
 
-        {/* Stats Cards */}
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
           <GlassCard gradient="linear(to-br, #ee0979, #ff6a00)">
             <Stat>
@@ -341,7 +339,6 @@ function Saidas() {
           </GlassCard>
         </SimpleGrid>
 
-        {/* Barra de Progresso Fixas vs Variáveis */}
         {totalSaidas > 0 && (
           <GlassCard mt={6}>
             <VStack align="stretch" spacing={3}>
@@ -367,7 +364,6 @@ function Saidas() {
         )}
       </MotionBox>
 
-      {/* Formulário */}
       <AnimatePresence>
         {mostrarFormulario && (
           <MotionBox
@@ -506,7 +502,6 @@ function Saidas() {
         )}
       </AnimatePresence>
 
-      {/* Lista de Saídas */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -619,7 +614,6 @@ function Saidas() {
         </VStack>
       </motion.div>
 
-      {/* Alert Dialog */}
       <AlertDialog
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}

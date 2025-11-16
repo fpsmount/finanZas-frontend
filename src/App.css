@@ -1,12 +1,7 @@
-/* ====================================
-   FINANZAS - PREMIUM GLOBAL STYLES
-   ==================================== */
-
 .App {
   text-align: center;
 }
 
-/* Animações Globais */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
@@ -28,7 +23,6 @@
   50% { box-shadow: 0 0 40px rgba(102, 126, 234, 0.6); }
 }
 
-/* Scrollbar Premium */
 ::-webkit-scrollbar {
   width: 12px;
   height: 12px;
@@ -49,7 +43,6 @@
   background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
-/* Seleção de Texto */
 ::selection {
   background: rgba(102, 126, 234, 0.3);
   color: white;
@@ -60,7 +53,6 @@
   color: white;
 }
 
-/* DatePicker Premium Dark Theme */
 .react-datepicker {
   background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%) !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
@@ -147,7 +139,6 @@
   font-size: 0.75rem !important;
 }
 
-/* Wrapper do DatePicker */
 .react-datepicker-wrapper {
   width: 100%;
 }
@@ -156,7 +147,6 @@
   width: 100%;
 }
 
-/* Responsividade Mobile Premium */
 @media screen and (max-width: 768px) {
   .react-datepicker {
     font-size: 0.9rem !important;
@@ -170,25 +160,21 @@
     line-height: 2rem !important;
   }
 
-  /* Previne overflow horizontal */
   body {
     overflow-x: hidden;
   }
   
-  /* Remove delay de 300ms em mobile */
   * {
     touch-action: manipulation;
   }
 }
 
-/* Tablets */
 @media screen and (min-width: 768px) and (max-width: 992px) {
   .react-datepicker {
     max-width: 350px !important;
   }
 }
 
-/* Touch Feedback Premium */
 button, a, input, select {
   -webkit-tap-highlight-color: rgba(102, 126, 234, 0.2);
   transition: all 0.3s ease;
@@ -198,13 +184,11 @@ button:active, a:active {
   transform: scale(0.98);
 }
 
-/* Input Focus Premium */
 input:focus, select:focus, textarea:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2) !important;
 }
 
-/* Glassmorphism Helper Classes */
 .glass-card {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
@@ -219,7 +203,6 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
 }
 
-/* Gradient Text Helper */
 .gradient-text {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
@@ -227,7 +210,6 @@ input:focus, select:focus, textarea:focus {
   background-clip: text;
 }
 
-/* Loading Spinner Premium */
 @keyframes spin-glow {
   0% {
     transform: rotate(0deg);
@@ -242,7 +224,6 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
-/* Card Hover Effects */
 .card-hover-premium {
   position: relative;
   overflow: hidden;
@@ -269,7 +250,6 @@ input:focus, select:focus, textarea:focus {
   transform: translateX(100%) translateY(100%) rotate(45deg);
 }
 
-/* Button Premium Styles */
 .btn-premium {
   position: relative;
   overflow: hidden;
@@ -300,7 +280,6 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
 }
 
-/* Stats Cards Animation */
 @keyframes stat-appear {
   0% {
     opacity: 0;
@@ -316,7 +295,6 @@ input:focus, select:focus, textarea:focus {
   animation: stat-appear 0.5s ease-out;
 }
 
-/* Chart Container Premium */
 .chart-container-premium {
   background: rgba(255, 255, 255, 0.03);
   border-radius: 20px;
@@ -324,7 +302,6 @@ input:focus, select:focus, textarea:focus {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Badge Premium */
 .badge-premium {
   display: inline-block;
   padding: 6px 12px;
@@ -338,7 +315,6 @@ input:focus, select:focus, textarea:focus {
   letter-spacing: 0.5px;
 }
 
-/* Tooltip Premium */
 .tooltip-premium {
   background: rgba(45, 45, 45, 0.95) !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
@@ -348,12 +324,10 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* Notification Toast Premium */
 .chakra-toast {
   backdrop-filter: blur(20px) !important;
 }
 
-/* Progress Bar Premium */
 .progress-premium {
   height: 8px;
   border-radius: 12px;
@@ -381,7 +355,6 @@ input:focus, select:focus, textarea:focus {
   100% { transform: translateX(100%); }
 }
 
-/* Divider Premium */
 .divider-premium {
   height: 1px;
   background: linear-gradient(
@@ -393,7 +366,6 @@ input:focus, select:focus, textarea:focus {
   margin: 24px 0;
 }
 
-/* Avatar Premium */
 .avatar-premium {
   position: relative;
   border-radius: 50%;
@@ -418,7 +390,6 @@ input:focus, select:focus, textarea:focus {
   100% { transform: rotate(360deg); }
 }
 
-/* Table Premium Styles */
 .table-premium {
   background: rgba(255, 255, 255, 0.03);
   border-radius: 16px;
@@ -440,7 +411,6 @@ input:focus, select:focus, textarea:focus {
   transform: scale(1.01);
 }
 
-/* Modal Premium */
 .modal-premium {
   background: rgba(26, 32, 44, 0.95) !important;
   backdrop-filter: blur(20px) !important;
@@ -449,7 +419,6 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
 }
 
-/* Form Control Premium */
 .form-control-premium input,
 .form-control-premium select,
 .form-control-premium textarea {
@@ -469,7 +438,6 @@ input:focus, select:focus, textarea:focus {
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* Skeleton Loading Premium */
 @keyframes skeleton-loading {
   0% {
     background-position: -200px 0;
@@ -491,7 +459,6 @@ input:focus, select:focus, textarea:focus {
   border-radius: 12px;
 }
 
-/* Grid System Premium */
 .grid-premium {
   display: grid;
   gap: 24px;
@@ -516,7 +483,6 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
-/* Success State Animation */
 @keyframes success-check {
   0% {
     stroke-dashoffset: 100;
@@ -541,14 +507,12 @@ input:focus, select:focus, textarea:focus {
   animation: error-shake 0.5s;
 }
 
-/* Backdrop Blur Premium */
 .backdrop-premium {
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   background-color: rgba(17, 25, 40, 0.75);
 }
 
-/* Print Styles */
 @media print {
   body {
     background: white !important;
@@ -564,13 +528,11 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
-/* Accessibility Improvements */
 .focus-visible:focus {
   outline: 3px solid #667eea;
   outline-offset: 2px;
 }
 
-/* High Contrast Mode */
 @media (prefers-contrast: high) {
   .glass-card {
     border: 2px solid white;
@@ -581,7 +543,6 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
-/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
@@ -590,14 +551,12 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
-/* Dark Mode Enhancements */
 @media (prefers-color-scheme: dark) {
   body {
     color-scheme: dark;
   }
 }
 
-/* Custom Utilities */
 .text-shadow-premium {
   text-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
 }
@@ -629,10 +588,7 @@ input:focus, select:focus, textarea:focus {
   z-index: -1;
 }
 
-/* Performance Optimizations */
 .gpu-accelerated {
   transform: translateZ(0);
   will-change: transform;
 }
-
-/* End of Premium Styles */

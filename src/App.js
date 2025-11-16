@@ -159,7 +159,6 @@ function Navigation() {
               </MotionBox>
             ))}
             
-            {/* Menu do Usuário */}
             <Menu>
               <MenuButton
                 as={Button}
@@ -237,7 +236,6 @@ function Navigation() {
                 <DrawerCloseButton size="lg" />
                 <DrawerBody>
                   <VStack spacing={6} mt={16} align="stretch">
-                    {/* Perfil no Menu Mobile */}
                     <VStack spacing={3} pb={4} borderBottom="1px solid" borderColor="whiteAlpha.200">
                       <Avatar
                         size="lg"
@@ -316,7 +314,6 @@ function App() {
       position="relative"
       overflow="hidden"
     >
-      {/* Background Animado */}
       <Box
         position="absolute"
         top={0}
@@ -357,7 +354,6 @@ function App() {
         </AuthProvider>
       </Router>
 
-      {/* WhatsApp Button Premium */}
       <MotionBox
         position="fixed"
         bottom={{ base: "20px", md: "40px" }}

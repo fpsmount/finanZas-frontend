@@ -272,7 +272,6 @@ function Metas() {
 
   return (
     <Box w="100%" maxW="1400px" mx="auto">
-      {/* Header */}
       <MotionBox
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -316,7 +315,6 @@ function Metas() {
           </Button>
         </Flex>
 
-        {/* Card de Resumo Global */}
         <GlassCard gradient="linear(to-br, #fc4a1a, #f7b733)">
           <Flex justify="space-between" align="center" flexWrap="wrap" gap={6}>
             <VStack align="start" spacing={2} flex={1}>
@@ -355,7 +353,6 @@ function Metas() {
         </GlassCard>
       </MotionBox>
 
-      {/* Formulário */}
       <AnimatePresence>
         {mostrarFormulario && (
           <MotionBox
@@ -527,7 +524,6 @@ function Metas() {
         )}
       </AnimatePresence>
 
-      {/* Lista de Metas */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -688,7 +684,6 @@ function Metas() {
         </VStack>
       </motion.div>
 
-      {/* Alert Dialog */}
       <AlertDialog
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}

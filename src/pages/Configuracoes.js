@@ -169,7 +169,6 @@ function Configuracoes() {
 
   return (
     <Box w="100%" maxW="1200px" mx="auto">
-      {/* Header */}
       <MotionBox
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

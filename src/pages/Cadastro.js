@@ -145,7 +145,6 @@ function CadastroPage() {
           position="relative"
           overflow="hidden"
         >
-          {/* Gradiente de fundo */}
           <Box
             position="absolute"
             top="-50%"
@@ -158,7 +157,6 @@ function CadastroPage() {
           />
 
           <VStack spacing={6} align="stretch" position="relative" zIndex={1}>
-            {/* Logo */}
             <Center>
               <MotionBox
                 whileHover={{ scale: 1.05, rotate: 5 }}
@@ -173,7 +171,6 @@ function CadastroPage() {
               </MotionBox>
             </Center>
 
-            {/* Título */}
             <VStack spacing={2}>
               <Heading 
                 as="h1" 
@@ -190,7 +187,6 @@ function CadastroPage() {
               </Text>
             </VStack>
 
-            {/* Botão Google */}
             <Button
               onClick={handleGoogleSignup}
               isLoading={loading}
@@ -220,7 +216,6 @@ function CadastroPage() {
               <Divider borderColor="whiteAlpha.300" />
             </HStack>
 
-            {/* Formulário */}
             <form onSubmit={handleCadastro}>
               <VStack spacing={4}>
                 <FormControl>
@@ -313,7 +308,6 @@ function CadastroPage() {
                   </InputGroup>
                 </FormControl>
 
-                {/* Lista de Benefícios */}
                 <Box w="100%" p={4} bg="rgba(255, 255, 255, 0.05)" borderRadius="xl">
                   <Text color="whiteAlpha.900" fontSize="sm" fontWeight="semibold" mb={2}>
                     ✨ Ao criar sua conta você terá:
@@ -359,7 +353,6 @@ function CadastroPage() {
               </VStack>
             </form>
 
-            {/* Link para Login */}
             <Center>
               <Text color="whiteAlpha.700" fontSize="sm">
                 Já tem uma conta?{' '}
@@ -375,7 +368,6 @@ function CadastroPage() {
               </Text>
             </Center>
 
-            {/* Footer */}
             <Center pt={4}>
               <Text fontSize="xs" color="whiteAlpha.500" textAlign="center">
                 Ao criar uma conta, você concorda com nossos<br />

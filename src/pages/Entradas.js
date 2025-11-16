@@ -267,7 +267,6 @@ function Entradas() {
 
   return (
     <Box w="100%" maxW="1400px" mx="auto">
-      {/* Header */}
       <MotionBox
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -311,7 +310,6 @@ function Entradas() {
           </Button>
         </Flex>
 
-        {/* Stats Cards */}
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
           <GlassCard gradient="linear(to-br, #11998e, #38ef7d)">
             <Stat>
@@ -345,7 +343,6 @@ function Entradas() {
         </SimpleGrid>
       </MotionBox>
 
-      {/* Formulário */}
       <AnimatePresence>
         {mostrarFormulario && (
           <MotionBox
@@ -485,7 +482,6 @@ function Entradas() {
         )}
       </AnimatePresence>
 
-      {/* Lista de Entradas */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -600,7 +596,6 @@ function Entradas() {
         </VStack>
       </motion.div>
 
-      {/* Alert Dialog */}
       <AlertDialog
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}
