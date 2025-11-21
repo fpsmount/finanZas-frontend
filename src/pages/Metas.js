@@ -286,7 +286,7 @@ function Metas() {
               bgGradient="linear(to-r, #fc4a1a, #f7b733)"
               bgClip="text"
             >
-              🎯 Metas Financeiras
+              Metas Financeiras
             </Heading>
             <Text color="whiteAlpha.700" fontSize={{ base: "sm", md: "md" }}>
               Estabeleça e alcance seus objetivos

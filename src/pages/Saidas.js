@@ -278,7 +278,7 @@ function Saidas() {
               bgGradient="linear(to-r, #ee0979, #ff6a00)"
               bgClip="text"
             >
-              💸 Saídas
+              Saídas
             </Heading>
             <Text color="whiteAlpha.700" fontSize={{ base: "sm", md: "md" }}>
               Controle seus gastos e despesas

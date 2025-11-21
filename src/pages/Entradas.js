@@ -281,7 +281,7 @@ function Entradas() {
               bgGradient="linear(to-r, #11998e, #38ef7d)"
               bgClip="text"
             >
-              💰 Entradas
+              Entradas
             </Heading>
             <Text color="whiteAlpha.700" fontSize={{ base: "sm", md: "md" }}>
               Gerencie suas fontes de renda

@@ -384,7 +384,7 @@ function Relatorios() {
               bgGradient="linear(to-r, #4facfe, #00f2fe)"
               bgClip="text"
             >
-              📈 Relatórios e Análises
+              Relatórios e Análises
             </Heading>
             <Text color="whiteAlpha.700" fontSize={{ base: "sm", md: "md" }}>
               Insights completos das suas finanças
