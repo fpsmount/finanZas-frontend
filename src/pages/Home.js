@@ -528,7 +528,7 @@ function Dashboard() {
                 <Heading size="md" color="white">
                   📈 Evolução Mensal
                 </Heading>
-                <Box h={{ base: "250px", md: "300px" }}>
+                <Box h={{ base: "250px", md: "355px" }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={dadosLinha}>
                       <defs>
