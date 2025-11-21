@@ -607,7 +607,7 @@ function Relatorios() {
                       Tendência
                     </Badge>
                   </HStack>
-                  <Box h="363px">
+                  <Box h="357px">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={dadosMensais}>
                         <defs>
