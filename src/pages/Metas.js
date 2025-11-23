@@ -113,7 +113,7 @@ function Metas() {
   const cancelRef = useRef();
   const toast = useToast();
   const { currentUser } = useAuth();
-  const baseUrl = "http://localhost:8080/api/metas";
+  const baseUrl = "https://finanzas-backend-rmik.onrender.com/api/metas";
 
   const fetchMetas = async () => {
     if (!currentUser) return;
